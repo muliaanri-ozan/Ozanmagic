@@ -53,7 +53,7 @@
         .app-sub { font-size: 12px; color: #8e8e93; margin-top: 2px; }
         .app-right { display: flex; align-items: center; gap: 8px; font-size: 15px; color: #8e8e93; }
 
-        /* Kamera iOS + Efek Blitz Sangat Tipis & Cepat */
+        /* Kamera iOS */
         #screen-camera { padding: 0; justify-content: space-between; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; background: #000; z-index: 999; }
         .viewfinder { flex: 1; width: 100%; position: relative; overflow: hidden; }
         video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
@@ -71,14 +71,17 @@
         .mode-selector { display: flex; gap: 24px; font-size: 13px; font-weight: 600; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; color: #8e8e93; }
         .mode-selector .active-mode { color: #f5c518; }
         .shutter-row { display: flex; width: 100%; justify-content: space-around; align-items: center; padding: 0 30px; }
-        .gallery-preview-btn { width: 44px; height: 44px; border-radius: 8px; overflow: hidden; background: #222; border: 2px solid white; transition: transform 0.15s ease; }
+        
+        /* Thumbnail Kiri Bawah yang Interaktif */
+        .gallery-preview-btn { width: 44px; height: 44px; border-radius: 8px; overflow: hidden; background: #222; border: 2px solid white; transition: transform 0.15s ease; cursor: pointer; }
         .gallery-preview-btn img { width: 100%; height: 100%; object-fit: cover; }
+        
         .shutter-btn { width: 74px; height: 74px; border-radius: 50%; border: 4px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; background: transparent; }
         .shutter-inner { width: 60px; height: 60px; border-radius: 50%; background: white; transition: transform 0.1s; }
         .shutter-btn:active .shutter-inner { transform: scale(0.9); }
         .flip-cam-btn { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
 
-        /* Menu 4: Galeri dengan Menu Titik Tiga Rahasia di Lightbox */
+        /* Menu 4: Galeri */
         #screen-gallery { justify-content: flex-start; padding: 0; align-items: stretch; position: absolute; top: 0; left: 0; width: 100%; min-height: 100vh; background: #000; z-index: 999; }
         .gallery-header { display: flex; justify-content: space-between; padding: 16px 20px; font-size: 34px; font-weight: bold; }
         .gallery-sub { padding: 0 20px 10px 20px; font-size: 13px; color: #8e8e93; text-align: left; }
@@ -86,14 +89,12 @@
         .grid-item { aspect-ratio: 1/1; background: #1c1c1e; overflow: hidden; cursor: pointer; }
         .grid-item img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* Lightbox (Zoom Foto) dengan Titik Tiga Rahasia di Pojok Kanan Atas */
+        /* Lightbox & Menu Titik Tiga */
         #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; flex-direction: column; }
         #lightbox img { max-width: 95%; max-height: 80vh; border-radius: 4px; }
         .lightbox-topbar { position: absolute; top: 20px; right: 20px; display: flex; gap: 15px; align-items: center; }
         .menu-dots-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .close-lightbox { background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        
-        /* Menu Dropdown Titik Tiga */
         #download-menu { display: none; position: absolute; top: 65px; right: 20px; background: #2c2c2e; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.5); z-index: 1005; width: 160px; text-align: left; }
         .menu-item { padding: 12px 16px; font-size: 14px; color: #0a84ff; cursor: pointer; border-bottom: 0.5px solid #38383a; }
         .menu-item:active { background: #3a3a3c; }
@@ -195,8 +196,6 @@
         <div class="viewfinder">
             <video id="cam" autoplay playsinline></video>
             <canvas id="canvas" style="display:none;"></canvas>
-            
-            <!-- Efek Blitz Sangat Tipis & Cepat -->
             <div id="flash-overlay"></div>
 
             <div class="camera-grid">
@@ -223,7 +222,8 @@
                 <span>Portrait</span>
             </div>
             <div class="shutter-row">
-                <div class="gallery-preview-btn" id="preview-box">
+                <!-- Thumbnail Kiri Bawah Sekarang Bisa Diklik -->
+                <div class="gallery-preview-btn" id="preview-box" onclick="openPhoto()">
                     <img id="thumb-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" alt="Thumb">
                 </div>
                 <div class="shutter-btn" onclick="capturePhoto()"><div class="shutter-inner"></div></div>
@@ -243,7 +243,7 @@
         </div>
     </div>
 
-    <!-- LIGHTBOX (ZOOM FOTO DENGAN TITIK TIGA RAHASIA) -->
+    <!-- LIGHTBOX -->
     <div id="lightbox" onclick="closeLightbox(event)">
         <div class="lightbox-topbar">
             <button class="menu-dots-btn" onclick="toggleMenu(event)">•••</button>
@@ -355,7 +355,6 @@
             } catch(e) { console.log(e); }
         }
 
-        // Jepret Foto: Masuk Galeri Web Dulu secara Mulus & Blitz Tipis
         function capturePhoto() {
             const video = document.getElementById('cam');
             const canvas = document.getElementById('canvas');
@@ -365,19 +364,16 @@
             
             const dataUrl = canvas.toDataURL('image/jpeg');
 
-            // 1. Efek Blitz Sangat Tipis & Cepat (Hanya 80 milidetik)
             const flash = document.getElementById('flash-overlay');
             flash.style.opacity = '0.7';
             setTimeout(() => { flash.style.opacity = '0'; }, 80);
 
-            // 2. Animasi Thumbnail Kiri Bawah
             const thumb = document.getElementById('thumb-preview');
             const previewBox = document.getElementById('preview-box');
             thumb.src = dataUrl;
             previewBox.style.transform = 'scale(1.15)';
             setTimeout(() => { previewBox.style.transform = 'scale(1)'; }, 150);
 
-            // 3. Masuk ke Galeri Web Palsu
             document.getElementById('selfie-result').src = dataUrl;
 
             if(navigator.vibrate) navigator.vibrate(50);
@@ -402,7 +398,6 @@
             }
         }
 
-        // Simpan ke Galeri Asli Hanya Saat Titik Tiga Diklik & Dipilih
         function downloadPhoto() {
             const a = document.createElement('a');
             a.href = document.getElementById('selfie-result').src;
