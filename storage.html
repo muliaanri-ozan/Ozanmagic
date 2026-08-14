@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>iPhone Storage</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --card-bg: #1c1c1e;
+            --text-main: #ffffff;
+            --text-muted: #8e8e93;
+            --separator: #38383a;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px 16px 16px;
+            font-size: 17px;
+            font-weight: 600;
+            background-color: var(--bg-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .back-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #2c2c2e;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 14px;
+            font-size: 22px;
+            padding-bottom: 2px;
+        }
+        .content {
+            padding: 0 16px;
+        }
+        /* Kotak Grafik Memori Atas */
+        .storage-box {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 25px;
+        }
+        .storage-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 12px;
+        }
+        .device-name { font-size: 20px; font-weight: 600; }
+        .storage-used-text { font-size: 15px; color: var(--text-muted); }
+        
+        /* Bar Grafik Utama */
+        .bar-container {
+            height: 7px;
+            background-color: #3a3a3c;
+            border-radius: 4px;
+            display: flex;
+            overflow: hidden;
+            gap: 2px;
+            margin-bottom: 14px;
+        }
+        .bar-segment { height: 100%; transition: width 1s ease-in-out; }
+        
+        /* Keterangan Warna Bar */
+        .legend-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            row-gap: 6px;
+            column-gap: 10px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        /* Daftar List Aplikasi */
+        .app-list {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        .app-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--separator);
+            font-size: 16px;
+        }
+        .app-item:last-child { border-bottom: none; }
+        .app-left { display: flex; align-items: center; gap: 12px; }
+        .app-icon { width: 32px; height: 32px; border-radius: 8px; background-color: #3a3a3c; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
+        .app-size { color: var(--text-muted); font-size: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="back-btn">‹</div>
+        iPhone Storage
+    </div>
+
+    <div class="content">
+        <!-- Kotak Grafik Memori -->
+        <div class="storage-box">
+            <div class="storage-title-row">
+                <span class="device-name">iPhone</span>
+                <span class="storage-used-text" id="storage-text">111,29 GB of 128 GB used</span>
+            </div>
+            
+            <!-- Bar Grafik -->
+            <div class="bar-container">
+                <div class="bar-segment" id="bar-apps" style="width: 75%; background-color: #ff3b30;"></div>
+                <div class="bar-segment" style="width: 10%; background-color: #ff9500;"></div>
+                <div class="bar-segment" style="width: 5%; background-color: #34c759;"></div>
+                <div class="bar-segment" style="width: 10%; background-color: #8e8e93;"></div>
+            </div>
+
+            <div class="legend-grid">
+                <div class="legend-item"><div class="dot" style="background:#ff3b30;"></div>Applications</div>
+                <div class="legend-item"><div class="dot" style="background:#ff9500;"></div>Photos</div>
+                <div class="legend-item"><div class="dot" style="background:#34c759;"></div>iCloud Drive</div>
+                <div class="legend-item"><div class="dot" style="background:#8e8e93;"></div>System Data</div>
+            </div>
+        </div>
+
+        <!-- Daftar Aplikasi Palsu -->
+        <div class="app-list">
+            <div class="app-item">
+                <div class="app-left"><div class="app-icon" style="background:#25d366; color:white;">W</div>WhatsApp Inc.</div>
+                <div class="app-size" id="size-wa">13,55 GB</div>
+            </div>
+            <div class="app-item">
+                <div class="app-left"><div class="app-icon" style="background:#111; color:white;">C</div>CapCut</div>
+                <div class="app-size" id="size-capcut">12,53 GB</div>
+            </div>
+            <div class="app-item">
+                <div class="app-left"><div class="app-icon" style="background:#007aff; color:white;">M</div>Mobile Legends</div>
+                <div class="app-size" id="size-ml">9,45 GB</div>
+            </div>
+            <div class="app-item">
+                <div class="app-left"><div class="app-icon" style="background:#34c759; color:white;">T</div>Telegram</div>
+                <div class="app-size">8,05 GB</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+        const ws = new WebSocket(protocol + window.location.host + '/ws');
+
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            
+            // Logika Sulap: Saat tombol "SEDOT MEMORI" ditekan dari Remote
+            if (data.action === "DRAIN_MEMORY") {
+                // Ubah teks ukuran memori jadi drastis turun
+                document.getElementById("storage-text").innerText = "5,12 GB of 128 GB used";
+                
+                // Perkecil bar merah aplikasi secara drastis
+                document.getElementById("bar-apps").style.width = "5%";
+                
+                // Susutkan ukuran file aplikasi di list
+                document.getElementById("size-wa").innerText = "1,20 GB";
+                document.getElementById("size-capcut").innerText = "850 MB";
+                document.getElementById("size-ml").innerText = "420 MB";
+            }
+        };
+    </script>
+</body>
+</html>

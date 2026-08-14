@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>Photos</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-main: #ffffff;
+            --text-muted: #8e8e93;
+            --blue-link: #0a84ff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background-color: var(--bg-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .library-title {
+            font-size: 34px;
+            font-weight: bold;
+            letter-spacing: -0.5px;
+        }
+        .select-btn {
+            color: var(--blue-link);
+            font-size: 17px;
+        }
+        .sub-header {
+            padding: 0 20px 10px 20px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        
+        /* Grid Galeri */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            padding: 0 2px;
+            min-height: 70vh;
+        }
+        .grid-item {
+            aspect-ratio: 1/1;
+            background-color: #1c1c1e;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Modal / Layar Fullscreen saat Foto Diklik */
+        #lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        #lightbox img {
+            max-width: 95%;
+            max-height: 85vh;
+            border-radius: 4px;
+        }
+        .close-lightbox {
+            position: absolute;
+            top: 30px; right: 20px;
+            color: white; font-size: 24px;
+            background: #3a3a3c; width: 36px; height: 36px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="library-title">Library</div>
+        <div class="select-btn">Select</div>
+    </div>
+    
+    <!-- Langsung diset 1 Item dari awal -->
+    <div class="sub-header" id="item-count">1 Item</div>
+
+    <!-- Tampilan Galeri: Langsung Bersih & Hanya Menyisakan 1 Foto Selfie -->
+    <div class="grid-container" id="photo-grid">
+        <div class="grid-item" onclick="openPhoto('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800')">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300" alt="Selfie">
+        </div>
+    </div>
+
+    <!-- Layar Lightbox untuk Memperbesar Foto saat Diklik -->
+    <div id="lightbox" onclick="closePhoto()">
+        <div class="close-lightbox">✕</div>
+        <img id="lightbox-img" src="" alt="Zoomed">
+    </div>
+
+    <script>
+        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+        const ws = new WebSocket(protocol + window.location.host + '/ws');
+
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            
+            // Jaga-jaga jika tombol di remote terpencet lagi, kondisinya tetap konsisten
+            if (data.action === "DRAIN_MEMORY") {
+                document.getElementById("item-count").innerText = "1 Item";
+            }
+        };
+
+        function openPhoto(url) {
+            const lightbox = document.getElementById("lightbox");
+            const img = document.getElementById("lightbox-img");
+            img.src = url;
+            lightbox.style.display = "flex";
+        }
+
+        function closePhoto() {
+            document.getElementById("lightbox").style.display = "none";
+        }
+    </script>
+</body>
+</html>

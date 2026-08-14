@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>Battery Health & Charging</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --card-bg: #1c1c1e;
+            --text-main: #ffffff;
+            --text-muted: #8e8e93;
+            --blue-link: #0a84ff;
+            --separator: #38383a;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Header iOS */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px 16px 16px;
+            font-size: 17px;
+            font-weight: 600;
+            background-color: var(--bg-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .back-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #2c2c2e;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 14px;
+            font-size: 22px;
+            font-weight: 400;
+            padding-bottom: 2px;
+        }
+        
+        .content {
+            padding: 0 16px;
+        }
+        
+        /* Kotak Utama ala iOS Settings */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .card-header {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: -0.4px;
+        }
+        
+        .card-text {
+            font-size: 15px;
+            color: var(--text-main);
+            line-height: 1.45;
+            letter-spacing: -0.2px;
+        }
+        
+        .divider {
+            height: 1px;
+            background-color: var(--separator);
+            margin: 14px 0;
+        }
+        
+        .blue-link {
+            color: var(--blue-link);
+            font-size: 15px;
+            font-weight: 400;
+            letter-spacing: -0.2px;
+        }
+        
+        /* Baris Menu Sejajar */
+        .row-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 17px;
+            font-weight: 400;
+            letter-spacing: -0.4px;
+        }
+        
+        .value-text {
+            color: var(--text-muted);
+            font-size: 17px;
+            font-weight: 400;
+        }
+        
+        /* Teks Penjelasan di Bawah Kotak */
+        .section-footer {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.38;
+            letter-spacing: -0.1px;
+            padding: 0 16px;
+            margin-bottom: 24px;
+        }
+
+        /* Toggle Switch Khas Apple */
+        .toggle {
+            width: 51px;
+            height: 31px;
+            background-color: #39393d;
+            border-radius: 16px;
+            position: relative;
+            transition: background-color 0.3s;
+        }
+        .toggle-circle {
+            width: 27px;
+            height: 27px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3), 0 3px 1px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="back-btn">‹</div>
+        Battery Health & Charging
+    </div>
+
+    <div class="content">
+        <!-- Kotak 1: Important Battery Message -->
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">Important Battery Message</div>
+            <div class="card-text">
+                Your battery's health is significantly degraded. An Apple Authorized Service Provider can replace the battery to restore full performance and capacity.
+            </div>
+            <div class="divider"></div>
+            <div class="blue-link">Find Your Service Options</div>
+        </div>
+
+        <!-- Kotak 2: Maximum Capacity (Presisi dengan Angka di dalam Kotak) -->
+        <div class="card">
+            <div class="row-flex">
+                <span>Maximum Capacity</span>
+                <!-- ID battery-level inilah yang akan dikendalikan oleh remotemu -->
+                <span class="value-text" id="battery-level">76%</span>
+            </div>
+        </div>
+        <div class="section-footer">
+            This is a measure of battery capacity relative to when it was new. Lower capacity may result in fewer hours of usage between charges.
+        </div>
+
+        <!-- Kotak 3: Peak Performance -->
+        <div class="card">
+            <div class="row-flex">
+                <span>Peak Performance Capability</span>
+            </div>
+        </div>
+        <div class="section-footer">
+            Built-in dynamic software and hardware systems will help counter performance impacts that may be noticed as your iPhone battery chemically ages.
+        </div>
+
+        <!-- Kotak 4: Optimized Charging -->
+        <div class="card">
+            <div class="row-flex">
+                <span>Optimized Battery Charging</span>
+                <div class="toggle"><div class="toggle-circle"></div></div>
+            </div>
+        </div>
+        <div class="section-footer" style="margin-bottom: 40px;">
+            To reduce battery aging, iPhone learns from your daily charging routine so it can wait to finish charging past 80% until you need to use it.
+        </div>
+    </div>
+
+    <script>
+        // Mesin WebSocket Penerima Sinyal dari Controller
+        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+        const ws = new WebSocket(protocol + window.location.host + '/ws');
+
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            
+            if (data.action === "INCREASE_BATTERY") {
+                let batteryElement = document.getElementById("battery-level");
+                let currentNumber = parseInt(batteryElement.innerText.replace('%', ''));
+                let targetNumber = data.target; 
+                
+                // Animasi Hitungan Naik yang Mulus
+                let interval = setInterval(() => {
+                    if (currentNumber < targetNumber) {
+                        currentNumber++;
+                        batteryElement.innerText = currentNumber + "%";
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, 500); 
+            }
+        };
+    </script>
+</body>
+</html>
