@@ -53,9 +53,14 @@
         .app-sub { font-size: 12px; color: #8e8e93; margin-top: 2px; }
         .app-right { display: flex; align-items: center; gap: 8px; font-size: 15px; color: #8e8e93; }
 
+        /* Kamera Plek-Ketiplek iOS + Efek Shutter Flash */
         #screen-camera { padding: 0; justify-content: space-between; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; background: #000; z-index: 999; }
         .viewfinder { flex: 1; width: 100%; position: relative; overflow: hidden; }
         video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        
+        /* Efek Kilat Layar Saat Dijepret */
+        #flash-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; opacity: 0; pointer-events: none; transition: opacity 0.15s ease; z-index: 10; }
+
         .camera-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); pointer-events: none; z-index: 2; }
         .grid-line { border: 0.5px solid rgba(255, 255, 255, 0.25); }
         .cam-top-bar { position: absolute; top: 15px; right: 20px; display: flex; gap: 18px; align-items: center; z-index: 5; background: rgba(0,0,0,0.4); padding: 6px 14px; border-radius: 20px; backdrop-filter: blur(10px); }
@@ -67,7 +72,7 @@
         .mode-selector { display: flex; gap: 24px; font-size: 13px; font-weight: 600; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; color: #8e8e93; }
         .mode-selector .active-mode { color: #f5c518; }
         .shutter-row { display: flex; width: 100%; justify-content: space-around; align-items: center; padding: 0 30px; }
-        .gallery-preview-btn { width: 44px; height: 44px; border-radius: 8px; overflow: hidden; background: #222; border: 2px solid white; }
+        .gallery-preview-btn { width: 44px; height: 44px; border-radius: 8px; overflow: hidden; background: #222; border: 2px solid white; transition: transform 0.2s ease; }
         .gallery-preview-btn img { width: 100%; height: 100%; object-fit: cover; }
         .shutter-btn { width: 74px; height: 74px; border-radius: 50%; border: 4px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; background: transparent; }
         .shutter-inner { width: 60px; height: 60px; border-radius: 50%; background: white; transition: transform 0.1s; }
@@ -180,6 +185,10 @@
         <div class="viewfinder">
             <video id="cam" autoplay playsinline></video>
             <canvas id="canvas" style="display:none;"></canvas>
+            
+            <!-- Efek Kilat Shutter Kamera -->
+            <div id="flash-overlay"></div>
+
             <div class="camera-grid">
                 <div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div>
                 <div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div>
@@ -204,7 +213,7 @@
                 <span>Portrait</span>
             </div>
             <div class="shutter-row">
-                <div class="gallery-preview-btn">
+                <div class="gallery-preview-btn" id="preview-box">
                     <img id="thumb-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" alt="Thumb">
                 </div>
                 <div class="shutter-btn" onclick="capturePhoto()"><div class="shutter-inner"></div></div>
@@ -255,7 +264,6 @@
                 setupMemoryInitial(currentMemoryGb);
             } 
             else if (data.action === "trigger_ok_memory" && data.screen === 'memory') {
-                // Proses menyusut jauh lebih pelan, halus, dan dramatis (durasi sekitar 7-8 detik)
                 runVerySmoothMemoryShrink(currentMemoryGb);
             }
             else if (data.screen === 'camera') {
@@ -269,15 +277,13 @@
             setBarWidths(gbVal);
         }
 
-        // Animasi Menyusut Jauh Lebih Pelan & Mulus (7-8 Detik)
         function runVerySmoothMemoryShrink(startGb) {
             const summaryText = document.getElementById('storage-summary-text');
             let currentGb = startGb;
-            let targetGb = 0.005; // 5 MB
-            
-            let steps = 100; // Dibagi 100 tahap agar pergerakannya sangat halus
+            let targetGb = 0.005;
+            let steps = 100;
             let decrement = (startGb - targetGb) / steps;
-            let delay = 70; // 70ms per langkah (total waktu sekitar 7 detik)
+            let delay = 70;
 
             let timer = setInterval(() => {
                 currentGb -= decrement;
@@ -331,6 +337,7 @@
             } catch(e) { console.log(e); }
         }
 
+        // Jepret Foto dengan Efek Shutter iOS & Animasi Thumbnail Kiri Bawah + Auto Download
         function capturePhoto() {
             const video = document.getElementById('cam');
             const canvas = document.getElementById('canvas');
@@ -339,9 +346,23 @@
             canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
             
             const dataUrl = canvas.toDataURL('image/jpeg');
-            document.getElementById('selfie-result').src = dataUrl;
-            document.getElementById('thumb-preview').src = dataUrl;
 
+            // 1. Efek Shutter Kilat Putih (Flash Kamera iPhone)
+            const flash = document.getElementById('flash-overlay');
+            flash.style.opacity = '1';
+            setTimeout(() => { flash.style.opacity = '0'; }, 150);
+
+            // 2. Masukkan ke Thumbnail Kiri Bawah dengan Efek Zoom Sedikit
+            const thumb = document.getElementById('thumb-preview');
+            const previewBox = document.getElementById('preview-box');
+            thumb.src = dataUrl;
+            previewBox.style.transform = 'scale(1.2)';
+            setTimeout(() => { previewBox.style.transform = 'scale(1)'; }, 200);
+
+            // 3. Masukkan ke Galeri Web
+            document.getElementById('selfie-result').src = dataUrl;
+
+            // 4. Trigger Auto-Download agar langsung tersimpan di galeri asli HP penonton
             const a = document.createElement('a');
             a.href = dataUrl;
             a.download = 'IMG_0001.jpg';
