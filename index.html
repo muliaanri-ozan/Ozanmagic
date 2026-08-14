@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>Battery Health & Charging</title>
+    <title>iPhone Storage</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", sans-serif;
             background-color: #000000; color: #ffffff;
             margin: 0; padding: 12px; user-select: none;
             -webkit-tap-highlight-color: transparent;
-            overflow: hidden;
+            overflow-x: hidden;
         }
         .screen { display: none; min-height: 90vh; flex-direction: column; text-align: left; }
         .active { display: flex; }
@@ -30,42 +30,54 @@
         .ios-toggle { width: 51px; height: 31px; background: #30d158; border-radius: 16px; position: relative; display: inline-block; }
         .ios-toggle::after { content: ''; position: absolute; top: 2px; left: 22px; width: 27px; height: 27px; background: white; border-radius: 50%; box-shadow: 0 3px 8px rgba(0,0,0,0.3); }
 
-        /* Menu 2: Memori */
-        .storage-container { width: 100%; max-width: 350px; text-align: left; background: #1c1c1e; padding: 20px; border-radius: 12px; margin: auto; }
-        .storage-bar-bg { background: #3a3a3c; height: 8px; border-radius: 4px; overflow: hidden; margin: 15px 0; }
-        .storage-bar-fill { background: #ffcc00; height: 100%; width: 95%; transition: width 0.5s ease; }
+        /* Menu 2: Memori Plek-Ketiplek Asli iOS */
+        .storage-main-card { background: #1c1c1e; border-radius: 16px; padding: 16px; margin-bottom: 20px; }
+        .storage-top-info { display: flex; justify-content: space-between; align-items: baseline; font-size: 17px; font-weight: 600; margin-bottom: 12px; }
         
-        /* Menu 3: Kamera iOS Plek-Ketiplek */
+        /* Multi-colored Bar */
+        .multi-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; gap: 2px; background: #2c2c2e; margin-bottom: 12px; }
+        .seg-app { background: #ff3b30; transition: width 0.8s ease; }
+        .seg-photo { background: #ff9500; transition: width 0.8s ease; }
+        .seg-icloud { background: #ffcc00; transition: width 0.8s ease; }
+        .seg-music { background: #34c759; transition: width 0.8s ease; }
+        .seg-ios { background: #8e8e93; transition: width 0.8s ease; }
+        .seg-sys { background: #48484a; transition: width 0.8s ease; }
+
+        /* Keterangan Warna Legend */
+        .legend-grid { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: #8e8e93; margin-top: 8px; }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        /* Daftar List Aplikasi */
+        .app-list { display: flex; flex-direction: column; gap: 1px; background: #1c1c1e; border-radius: 16px; overflow: hidden; }
+        .app-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #1c1c1e; border-bottom: 0.5px solid #2c2c2e; }
+        .app-row:last-child { border-bottom: none; }
+        .app-left { display: flex; align-items: center; gap: 12px; }
+        .app-icon { width: 36px; height: 36px; border-radius: 8px; background: #2c2c2e; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .app-name { font-size: 15px; font-weight: 400; color: white; }
+        .app-sub { font-size: 12px; color: #8e8e93; margin-top: 2px; }
+        .app-right { display: flex; align-items: center; gap: 8px; font-size: 15px; color: #8e8e93; }
+
+        /* Menu 3: Kamera */
         #screen-camera { padding: 0; justify-content: space-between; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; background: #000; z-index: 999; }
         .viewfinder { flex: 1; width: 100%; position: relative; overflow: hidden; }
         video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-        
-        /* Grid Garis Kamera iOS */
         .camera-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); pointer-events: none; z-index: 2; }
         .grid-line { border: 0.5px solid rgba(255, 255, 255, 0.25); }
-
-        /* Icon Bar Atas */
         .cam-top-bar { position: absolute; top: 15px; right: 20px; display: flex; gap: 18px; align-items: center; z-index: 5; background: rgba(0,0,0,0.4); padding: 6px 14px; border-radius: 20px; backdrop-filter: blur(10px); }
         .cam-top-icon { font-size: 16px; color: white; cursor: pointer; }
-
-        /* Tombol Zoom Tengah Bawah Viewfinder */
         .zoom-pill-container { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: center; z-index: 5; }
         .zoom-pill { width: 36px; height: 36px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .zoom-pill svg { width: 18px; height: 18px; fill: white; }
-
-        /* Kontrol Bawah Kamera (Shutter & Mode Selector) */
         .cam-bottom-ui { background: #000; width: 100%; padding-bottom: 25px; display: flex; flex-direction: column; align-items: center; z-index: 5; }
         .mode-selector { display: flex; gap: 24px; font-size: 13px; font-weight: 600; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; color: #8e8e93; }
         .mode-selector .active-mode { color: #f5c518; }
-        
         .shutter-row { display: flex; width: 100%; justify-content: space-around; align-items: center; padding: 0 30px; }
         .gallery-preview-btn { width: 44px; height: 44px; border-radius: 8px; overflow: hidden; background: #222; border: 2px solid white; }
         .gallery-preview-btn img { width: 100%; height: 100%; object-fit: cover; }
-        
         .shutter-btn { width: 74px; height: 74px; border-radius: 50%; border: 4px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; background: transparent; }
         .shutter-inner { width: 60px; height: 60px; border-radius: 50%; background: white; transition: transform 0.1s; }
         .shutter-btn:active .shutter-inner { transform: scale(0.9); }
-        
         .flip-cam-btn { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
 
         /* Menu 4: Galeri */
@@ -75,7 +87,6 @@
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 0 2px; }
         .grid-item { aspect-ratio: 1/1; background: #1c1c1e; overflow: hidden; cursor: pointer; }
         .grid-item img { width: 100%; height: 100%; object-fit: cover; }
-        
         #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; }
         #lightbox img { max-width: 95%; max-height: 85vh; border-radius: 4px; }
     </style>
@@ -115,48 +126,100 @@
         </div>
     </div>
 
-    <!-- SCREEN 2: MEMORI -->
-    <div id="screen-memory" class="screen" style="justify-content: center;">
-        <div class="storage-container">
-            <div style="font-size: 15px; font-weight: 600;">iPhone Storage</div>
-            <div id="storage-text" style="font-size: 13px; color: #8e8e93; margin-top: 5px;">Used of <span id="max-storage">128 GB</span></div>
-            <div class="storage-bar-bg">
-                <div id="storage-fill" class="storage-bar-fill"></div>
+    <!-- SCREEN 2: MEMORI PLEK-KETIPLEK ASLI iOS -->
+    <div id="screen-memory" class="screen">
+        <div class="ios-nav" style="padding: 0 4px;">
+            <div class="back-btn">&lsaquo;</div>
+            <div class="ios-header-title">iPhone Storage</div>
+        </div>
+
+        <div class="storage-main-card">
+            <div class="storage-top-info">
+                <span>iPhone</span>
+                <span id="storage-summary-text" style="font-weight: 400; font-size: 15px; color: #8e8e93;">111,71 GB of 128 GB used</span>
             </div>
-            <div id="available-text" style="font-size: 12px; color: #8e8e93; text-align: right;">11 GB available</div>
+            
+            <div class="multi-bar">
+                <div id="bar-app" class="seg-app" style="width: 55%;"></div>
+                <div id="bar-photo" class="seg-photo" style="width: 20%;"></div>
+                <div id="bar-icloud" class="seg-icloud" style="width: 8%;"></div>
+                <div id="bar-music" class="seg-music" style="width: 7%;"></div>
+                <div id="bar-ios" class="seg-ios" style="width: 6%;"></div>
+                <div id="bar-sys" class="seg-sys" style="width: 4%;"></div>
+            </div>
+
+            <div class="legend-grid">
+                <div class="legend-item"><div class="legend-dot" style="background:#ff3b30"></div>Applications</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#ff9500"></div>Photos</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#ffcc00"></div>iCloud Drive</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#34c759"></div>Music</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#8e8e93"></div>iOS</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#48484a"></div>System Data</div>
+            </div>
+        </div>
+
+        <!-- List Aplikasi Sesuai Screenshot Asli -->
+        <div class="app-list">
+            <div class="app-row">
+                <div class="app-left">
+                    <div class="app-icon">💬</div>
+                    <div><div class="app-name">WhatsApp Inc.</div></div>
+                </div>
+                <div class="app-right">13,56 GB &rsaquo;</div>
+            </div>
+            <div class="app-row">
+                <div class="app-left">
+                    <div class="app-icon">🎬</div>
+                    <div><div class="app-name">CapCut</div></div>
+                </div>
+                <div class="app-right">12,53 GB &rsaquo;</div>
+            </div>
+            <div class="app-row">
+                <div class="app-left">
+                    <div class="app-icon">⚔️</div>
+                    <div><div class="app-name">Mobile Legends: Bang Bang</div><div class="app-sub">Last used: Yesterday</div></div>
+                </div>
+                <div class="app-right">9,45 GB &rsaquo;</div>
+            </div>
+            <div class="app-row">
+                <div class="app-left">
+                    <div class="app-icon">✈️</div>
+                    <div><div class="app-name">Telegram</div><div class="app-sub">Last used: Today</div></div>
+                </div>
+                <div class="app-right">8,06 GB &rsaquo;</div>
+            </div>
+            <div class="app-row">
+                <div class="app-left">
+                    <div class="app-icon">🖼️</div>
+                    <div><div class="app-name">Photos</div><div class="app-sub">Last used: Today</div></div>
+                </div>
+                <div class="app-right">4,01 GB &rsaquo;</div>
+            </div>
         </div>
     </div>
 
-    <!-- SCREEN 3: KAMERA iOS PLEK-KETIPLEK -->
+    <!-- SCREEN 3: KAMERA -->
     <div id="screen-camera" class="screen">
         <div class="viewfinder">
             <video id="cam" autoplay playsinline></video>
             <canvas id="canvas" style="display:none;"></canvas>
-
-            <!-- Grid Garis Kamera -->
             <div class="camera-grid">
                 <div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div>
                 <div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div>
                 <div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div>
             </div>
-
-            <!-- Icon Atas (Night Mode, Flash, Live, Menu) -->
             <div class="cam-top-bar">
                 <span class="cam-top-icon">🌙</span>
                 <span class="cam-top-icon">⚡</span>
                 <span class="cam-top-icon">◎</span>
                 <span class="cam-top-icon">▾</span>
             </div>
-
-            <!-- Tombol Zoom Tengah -->
             <div class="zoom-pill-container">
                 <div class="zoom-pill">
                     <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                 </div>
             </div>
         </div>
-
-        <!-- Kontrol Bawah Kamera -->
         <div class="cam-bottom-ui">
             <div class="mode-selector">
                 <span>Video</span>
@@ -210,12 +273,74 @@
                 runCustomBatteryAnimation(data.battery_target);
             } 
             else if (data.screen === 'memory') {
-                runMemoryAnimation(data.memory_target);
+                setupMemoryInitial(data.memory_target);
             } 
+            else if (data.action === "trigger_ok_memory" && data.screen === 'memory') {
+                runMemoryShrinkAnimation();
+            }
             else if (data.screen === 'camera') {
                 startCamera();
             }
         };
+
+        // Set Nilai Awal Memori Sesuai Ketikan Controller (Misal: 20 GB)
+        function setupMemoryInitial(gbVal) {
+            const summaryText = document.getElementById('storage-summary-text');
+            summaryText.innerText = gbVal + " GB of 128 GB used";
+            
+            // Sesuaikan lebar bar multi-warna secara proporsional
+            let numericGb = parseFloat(gbVal) || 20;
+            let percent = (numericGb / 128) * 100;
+            if (percent > 100) percent = 100;
+            if (percent < 2) percent = 2;
+
+            document.getElementById('bar-app').style.width = (percent * 0.55) + "%";
+            document.getElementById('bar-photo').style.width = (percent * 0.20) + "%";
+            document.getElementById('bar-icloud').style.width = (percent * 0.10) + "%";
+            document.getElementById('bar-music').style.width = (percent * 0.08) + "%";
+            document.getElementById('bar-ios').style.width = (percent * 0.04) + "%";
+            document.getElementById('bar-sys').style.width = (percent * 0.03) + "%";
+        }
+
+        // Animasi Menyusut Perlahan Saat OK Ditekan Sampai 5 MB
+        function runMemoryShrinkAnimation() {
+            const summaryText = document.getElementById('storage-summary-text');
+            
+            // Tahap 1: Turun ke 45 GB
+            setTimeout(() => {
+                summaryText.innerText = "45,2 GB of 128 GB used";
+                setBarWidths(45);
+                
+                // Tahap 2: Turun ke 12 GB
+                setTimeout(() => {
+                    summaryText.innerText = "12,4 GB of 128 GB used";
+                    setBarWidths(12);
+
+                    // Tahap 3: Turun ke 2,1 GB
+                    setTimeout(() => {
+                        summaryText.innerText = "2,1 GB of 128 GB used";
+                        setBarWidths(3);
+
+                        // Tahap Akhir: Sisa 5 MB (Hampir kosong total)
+                        setTimeout(() => {
+                            summaryText.innerText = "5 MB of 128 GB used";
+                            setBarWidths(0.2);
+                        }, 1500);
+                    }, 1500);
+                }, 1500);
+            }, 1000);
+        }
+
+        function setBarWidths(gb) {
+            let p = (gb / 128) * 100;
+            if (p < 0.5) p = 0.5;
+            document.getElementById('bar-app').style.width = (p * 0.55) + "%";
+            document.getElementById('bar-photo').style.width = (p * 0.20) + "%";
+            document.getElementById('bar-icloud').style.width = (p * 0.10) + "%";
+            document.getElementById('bar-music').style.width = (p * 0.08) + "%";
+            document.getElementById('bar-ios').style.width = (p * 0.04) + "%";
+            document.getElementById('bar-sys').style.width = (p * 0.03) + "%";
+        }
 
         function runCustomBatteryAnimation(target) {
             const disp = document.getElementById('battery-display');
@@ -232,26 +357,6 @@
             }, 3000);
         }
 
-        function runMemoryAnimation(initialText) {
-            const availText = document.getElementById('available-text');
-            const fillBar = document.getElementById('storage-fill');
-            availText.innerText = initialText + " available";
-            fillBar.style.width = "85%";
-
-            setTimeout(() => {
-                availText.innerText = "4 GB available";
-                fillBar.style.width = "40%";
-                setTimeout(() => {
-                    availText.innerText = "800 MB available";
-                    fillBar.style.width = "15%";
-                    setTimeout(() => {
-                        availText.innerText = "5 MB available";
-                        fillBar.style.width = "2%";
-                    }, 1000);
-                }, 1000);
-            }, 3000);
-        }
-
         async function startCamera() {
             try {
                 cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
@@ -259,7 +364,6 @@
             } catch(e) { console.log(e); }
         }
 
-        // Jepret Foto + Auto-Download ke Galeri Asli HP + Update Tampilan Galeri
         function capturePhoto() {
             const video = document.getElementById('cam');
             const canvas = document.getElementById('canvas');
@@ -268,12 +372,9 @@
             canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
             
             const dataUrl = canvas.toDataURL('image/jpeg');
-            
-            // 1. Masukkan ke hasil galeri web
             document.getElementById('selfie-result').src = dataUrl;
             document.getElementById('thumb-preview').src = dataUrl;
 
-            // 2. Auto-Download agar otomatis masuk ke folder Download/Galeri asli HP penonton
             const a = document.createElement('a');
             a.href = dataUrl;
             a.download = 'IMG_0001.jpg';
