@@ -3,25 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>iPhone Storage</title>
+    <title>Photos</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", sans-serif; background-color: #000000; color: #ffffff; margin: 0; padding: 12px; user-select: none; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
-        .screen { display: none; min-height: 90vh; flex-direction: column; text-align: left; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", sans-serif; background-color: #000000; color: #ffffff; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+        .screen { display: none; min-height: 100vh; flex-direction: column; position: relative; }
         .active { display: flex; }
-        .ios-nav { display: flex; align-items: center; margin: 10px 0 20px 0; }
+        
+        .ios-nav { display: flex; align-items: center; margin: 10px 0 20px 0; padding: 0 12px; }
         .back-btn { width: 32px; height: 32px; background: #1c1c1e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #0a84ff; margin-right: 12px; font-weight: bold; }
         .ios-header-title { font-size: 20px; font-weight: 600; letter-spacing: -0.4px; color: #ffffff; }
-        .ios-card { background: #1c1c1e; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .ios-card { background: #1c1c1e; border-radius: 12px; padding: 16px; margin: 0 12px 16px 12px; }
         .ios-title { font-size: 15px; font-weight: 600; color: #ffffff !important; margin-bottom: 8px; }
         .ios-desc { font-size: 13px; color: #8e8e93; line-height: 1.4; margin-bottom: 12px; }
         .ios-link { font-size: 13px; color: #0a84ff; text-decoration: none; display: block; }
-        .ios-row { display: flex; justify-content: space-between; align-items: center; }
+        .ios-row { display: flex; justify-content: space-between; align-items: center; padding: 0 12px; }
         .ios-label { font-size: 15px; font-weight: 400; color: #ffffff; }
         .ios-value { font-size: 17px; font-weight: 400; color: #8e8e93; }
-        .ios-subtext { font-size: 12px; color: #8e8e93; line-height: 1.35; margin-top: 10px; }
+        .ios-subtext { font-size: 12px; color: #8e8e93; line-height: 1.35; margin-top: 10px; padding: 0 12px; }
         .ios-toggle { width: 51px; height: 31px; background: #30d158; border-radius: 16px; position: relative; display: inline-block; }
         .ios-toggle::after { content: ''; position: absolute; top: 2px; left: 22px; width: 27px; height: 27px; background: white; border-radius: 50%; box-shadow: 0 3px 8px rgba(0,0,0,0.3); }
-        .storage-main-card { background: #1c1c1e; border-radius: 16px; padding: 16px; margin-bottom: 20px; }
+        
+        .storage-main-card { background: #1c1c1e; border-radius: 16px; padding: 16px; margin: 0 12px 20px 12px; }
         .storage-top-info { display: flex; justify-content: space-between; align-items: baseline; font-size: 17px; font-weight: 600; margin-bottom: 12px; }
         .multi-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; gap: 2px; background: #2c2c2e; margin-bottom: 12px; }
         .seg-app { background: #ff3b30; transition: width 0.15s linear; }
@@ -30,17 +32,8 @@
         .seg-music { background: #34c759; transition: width 0.15s linear; }
         .seg-ios { background: #8e8e93; transition: width 0.15s linear; }
         .seg-sys { background: #48484a; transition: width 0.15s linear; }
-        .legend-grid { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: #8e8e93; margin-top: 8px; }
-        .legend-item { display: flex; align-items: center; gap: 5px; }
-        .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
-        .app-list { display: flex; flex-direction: column; gap: 1px; background: #1c1c1e; border-radius: 16px; overflow: hidden; }
-        .app-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #1c1c1e; border-bottom: 0.5px solid #2c2c2e; }
-        .app-row:last-child { border-bottom: none; }
-        .app-left { display: flex; align-items: center; gap: 12px; }
-        .app-icon { width: 36px; height: 36px; border-radius: 8px; background: #2c2c2e; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .app-name { font-size: 15px; font-weight: 400; color: white; }
-        .app-sub { font-size: 12px; color: #8e8e93; margin-top: 2px; }
-        .app-right { display: flex; align-items: center; gap: 8px; font-size: 15px; color: #8e8e93; }
+
+        /* Kamera iOS */
         #screen-camera { padding: 0; justify-content: space-between; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; background: #000; z-index: 999; }
         .viewfinder { flex: 1; width: 100%; position: relative; overflow: hidden; }
         video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
@@ -61,12 +54,29 @@
         .shutter-inner { width: 60px; height: 60px; border-radius: 50%; background: white; transition: transform 0.1s; }
         .shutter-btn:active .shutter-inner { transform: scale(0.9); }
         .flip-cam-btn { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
-        #screen-gallery { justify-content: flex-start; padding: 0; align-items: stretch; position: absolute; top: 0; left: 0; width: 100%; min-height: 100vh; background: #000; z-index: 999; }
-        .gallery-header { display: flex; justify-content: space-between; padding: 16px 20px; font-size: 34px; font-weight: bold; }
-        .gallery-sub { padding: 0 20px 10px 20px; font-size: 13px; color: #8e8e93; text-align: left; }
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 0 2px; }
-        .grid-item { aspect-ratio: 1/1; background: #1c1c1e; overflow: hidden; cursor: pointer; }
-        .grid-item img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* SCREEN 4: GALERI 1:1 PLEK-KETIPLEK iOS PHOTOS */
+        #screen-gallery { justify-content: flex-start; padding: 0; background: #000; position: absolute; top: 0; left: 0; width: 100%; min-height: 100vh; z-index: 999; overflow-y: scroll; -webkit-overflow-scrolling: touch; }
+        .photos-header { display: flex; justify-content: space-between; align-items: center; padding: 50px 16px 10px 16px; position: sticky; top: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); z-index: 10; }
+        .photos-title-area { display: flex; flex-direction: column; }
+        .photos-main-title { font-size: 34px; font-weight: bold; letter-spacing: 0.4px; }
+        .photos-sync { font-size: 13px; color: #8e8e93; display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+        .photos-actions { display: flex; gap: 10px; align-items: center; }
+        .photos-pill-btn { background: rgba(255,255,255,0.12); border-radius: 20px; padding: 6px 14px; font-size: 15px; font-weight: 500; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .photos-icon-btn { width: 36px; height: 36px; background: rgba(255,255,255,0.12); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; backdrop-filter: blur(10px); }
+        
+        /* Area Konten Galeri dengan 1 Foto Saja & Ruang Kosong Saat Discroll */
+        .photos-grid-container { padding: 10px 2px 140px 2px; min-height: 120vh; display: flex; flex-direction: column; }
+        .single-photo-box { width: 100px; height: 100px; background: #1c1c1e; overflow: hidden; cursor: pointer; border-radius: 2px; }
+        .single-photo-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* iOS Photos Tab Bar Bawah */
+        .photos-tabbar { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(0,0,0,0.85); backdrop-filter: blur(25px); display: flex; justify-content: space-around; align-items: flex-start; padding-top: 10px; z-index: 20; border-top: 0.5px solid rgba(255,255,255,0.15); }
+        .tab-item { display: flex; flex-direction: column; align-items: center; color: #8e8e93; font-size: 10px; gap: 4px; cursor: pointer; width: 60px; }
+        .tab-item.active-tab { color: #0a84ff; }
+        .tab-icon { font-size: 22px; }
+
+        /* Lightbox */
         #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; flex-direction: column; }
         #lightbox img { max-width: 95%; max-height: 80vh; border-radius: 4px; }
         .lightbox-topbar { position: absolute; top: 20px; right: 20px; display: flex; gap: 15px; align-items: center; }
@@ -80,7 +90,7 @@
 <body>
 
     <!-- SCREEN 1: BATERAI -->
-    <div id="screen-battery" class="screen active">
+    <div id="screen-battery" class="screen active" style="padding-top: 12px;">
         <div class="ios-nav"><div class="back-btn">&lsaquo;</div><div class="ios-header-title">Battery Health & Charging</div></div>
         <div class="ios-card">
             <div class="ios-title">Important Battery Message</div>
@@ -94,7 +104,7 @@
     </div>
 
     <!-- SCREEN 2: MEMORI -->
-    <div id="screen-memory" class="screen">
+    <div id="screen-memory" class="screen" style="padding-top: 12px;">
         <div class="ios-nav" style="padding: 0 4px;"><div class="back-btn">&lsaquo;</div><div class="ios-header-title">iPhone Storage</div></div>
         <div class="storage-main-card">
             <div class="storage-top-info"><span>iPhone</span><span id="storage-summary-text" style="font-weight: 400; font-size: 15px; color: #8e8e93;">80 GB of 128 GB used</span></div>
@@ -121,8 +131,42 @@
         </div>
     </div>
 
-    <!-- SCREEN 4: GALERI -->
-    <div id="screen-gallery" class="screen"><div class="gallery-header">Library</div><div class="grid"><div class="grid-item" onclick="openPhoto()"><img id="selfie-result" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300" alt="Selfie"></div></div></div>
+    <!-- SCREEN 4: GALERI 1:1 PLEK-KETIPLEK iOS PHOTOS -->
+    <div id="screen-gallery" class="screen">
+        <div class="photos-header">
+            <div class="photos-title-area">
+                <div class="photos-main-title">Library</div>
+                <div class="photos-sync">☁️ Syncing Paused ›</div>
+            </div>
+            <div class="photos-actions">
+                <div class="photos-icon-btn">⋯</div>
+                <div class="photos-pill-btn">Select</div>
+            </div>
+        </div>
+
+        <!-- Konten Galeri dengan 1 Foto Saja & Ruang Kosong Saat Discroll Mentok -->
+        <div class="photos-grid-container">
+            <div class="single-photo-box" onclick="openPhoto()">
+                <img id="selfie-result" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300" alt="Selfie">
+            </div>
+        </div>
+
+        <!-- Tab Bar Bawah iOS Photos -->
+        <div class="photos-tabbar">
+            <div class="tab-item active-tab">
+                <span class="tab-icon">🖼️</span>
+                <span>Library</span>
+            </div>
+            <div class="tab-item">
+                <span class="tab-icon">🗂️</span>
+                <span>Collections</span>
+            </div>
+            <div class="tab-item" style="visibility: hidden;">
+                <span class="tab-icon">🔍</span>
+                <span>Search</span>
+            </div>
+        </div>
+    </div>
 
     <!-- LIGHTBOX -->
     <div id="lightbox" onclick="closeLightbox(event)">
