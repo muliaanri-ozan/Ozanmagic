@@ -3,58 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Magic Master Remote</title>
+    <title>Ozan Magic Controller</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background-color: #000; color: white; padding: 20px; text-align: center; }
-        h1 { color: #ff3b30; font-size: 22px; margin-top: 15px; }
-        .card { background-color: #1c1c1e; padding: 20px; border-radius: 14px; margin-bottom: 20px; text-align: left; }
-        label { font-size: 14px; color: #8e8e93; display: block; margin-bottom: 8px; }
-        input { width: 100%; padding: 14px; font-size: 24px; background-color: #2c2c2e; color: white; box-sizing: border-box; border-radius: 10px; border: none; text-align: center; margin-bottom: 15px; }
-        button { width: 100%; padding: 16px; font-size: 18px; font-weight: bold; background-color: #007aff; color: white; border: none; border-radius: 12px; cursor: pointer; margin-top: 5px; }
-        button:active { background-color: #005bb5; }
-        .btn-danger { background-color: #ff3b30; }
-        .btn-danger:active { background-color: #c52d24; }
+        body { font-family: -apple-system, sans-serif; background: #111; color: white; padding: 20px; text-align: center; }
+        .box { background: #222; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        button { background: #0a84ff; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 8px; }
+        input { width: 80%; padding: 10px; font-size: 18px; border-radius: 6px; border: 1px solid #444; background: #000; color: white; text-align: center; margin-top: 5px; }
+        .nav-btn { background: #30d158; margin-top: 5px; }
+        .ok-btn { background: #ff9f0a; }
     </style>
 </head>
 <body>
+    <h2>🎩 OZAN MAGIC REMOTE</h2>
 
-    <h1>🎩 OZAN MAGIC REMOTE</h1>
-
-    <!-- Menu Kontrol 1: Baterai -->
-    <div class="card">
-        <label>TARGET BATTERY HEALTH (Maks 100%):</label>
-        <input type="number" id="target-battery" value="85" min="1" max="100">
-        <button onclick="triggerBattery()">EXECUTE: NAIKKAN BATERAI</button>
+    <!-- Navigasi Layar -->
+    <div class="box">
+        <h3>Pilih Menu Tampilan</h3>
+        <button class="nav-btn" onclick="setScreen('battery')">1. Indikator Baterai</button>
+        <button class="nav-btn" onclick="setScreen('memory')">2. Indikator Memori</button>
+        <button class="nav-btn" onclick="setScreen('camera')">3. Kamera Palsu</button>
+        <button class="nav-btn" onclick="setScreen('gallery')">4. Galeri (1 Foto)</button>
     </div>
 
-    <!-- Menu Kontrol 2: Sedot Memori Storage -->
-    <div class="card">
-        <label>AKSI SULAP BERIKUTNYA:</label>
-        <button class="btn-danger" onclick="triggerMemory()">EXECUTE: SEDOT MEMORI</button>
+    <!-- Kontrol Baterai -->
+    <div class="box">
+        <h3>Battery Health</h3>
+        <input type="number" id="bat-val" value="80">
+        <button onclick="sendBatteryTarget()">KIRIM TARGET (Set ke -5%)</button>
+        <button class="ok-btn" onclick="sendBatteryOk()">OK (Jeda 3s & Naik 2s)</button>
+    </div>
+
+    <!-- Kontrol Memori -->
+    <div class="box">
+        <h3>Atur Sisa Memori Awal</h3>
+        <input type="text" id="mem-val" value="11 GB">
+        <button onclick="sendMemory()">PROSES MENYUSUT (OK)</button>
     </div>
 
     <script>
         const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
         const ws = new WebSocket(protocol + window.location.host + '/ws');
 
-        function triggerBattery() {
-            let targetVal = parseInt(document.getElementById("target-battery").value);
-            if (targetVal > 100) targetVal = 100;
-            if (targetVal < 1) targetVal = 1;
-            
-            const command = {
-                action: "INCREASE_BATTERY",
-                target: targetVal
-            };
-            ws.send(JSON.stringify(command));
-            if (navigator.vibrate) navigator.vibrate(200); 
+        function setScreen(name) {
+            ws.send(JSON.stringify({ screen: name, action: 'switch_screen' }));
         }
 
-        function triggerMemory() {
-            // Perintah gaib untuk menyedot memori di halaman storage
-            const command = { action: "DRAIN_MEMORY" };
-            ws.send(JSON.stringify(command));
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+        function sendBatteryTarget() {
+            let val = parseInt(document.getElementById('bat-val').value) || 80;
+            ws.send(JSON.stringify({ screen: 'battery', action: 'set_battery', battery_target: val }));
+        }
+
+        function sendBatteryOk() {
+            let val = parseInt(document.getElementById('bat-val').value) || 80;
+            ws.send(JSON.stringify({ screen: 'battery', action: 'trigger_ok_battery', battery_target: val }));
+        }
+
+        function sendMemory() {
+            let val = document.getElementById('mem-val').value;
+            ws.send(JSON.stringify({ screen: 'memory', action: 'set_memory', memory_target: val }));
         }
     </script>
 </body>
