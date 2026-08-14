@@ -3,27 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>Settings</title>
+    <title>Battery Health</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", sans-serif;
             background-color: #000000; color: #ffffff;
-            margin: 0; padding: 20px; user-select: none;
+            margin: 0; padding: 16px; user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
-        .screen { display: none; height: 90vh; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .screen { display: none; min-height: 85vh; flex-direction: column; text-align: left; }
         .active { display: flex; }
         
-        /* Menu 1: Baterai */
-        .battery-box { font-size: 64px; font-weight: 300; margin-top: 20px; }
+        /* Menu 1: Baterai ala iOS Settings */
+        .ios-header { font-size: 22px; font-weight: bold; margin: 20px 0 15px 5px; display: flex; align-items: center; }
+        .ios-card { background: #1c1c1e; border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+        .ios-title { font-size: 15px; font-weight: 600; color: #ff453a; margin-bottom: 8px; }
+        .ios-desc { font-size: 13px; color: #8e8e93; line-height: 1.4; margin-bottom: 12px; }
+        .ios-link { font-size: 13px; color: #0a84ff; text-decoration: none; display: block; margin-bottom: 15px; }
+        .ios-row { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 0.5px solid #38383a; }
+        .ios-label { font-size: 15px; font-weight: 400; }
+        .ios-value { font-size: 17px; font-weight: 400; color: #8e8e93; }
         
         /* Menu 2: Memori */
-        .storage-container { width: 100%; max-width: 350px; text-align: left; background: #1c1c1e; padding: 20px; border-radius: 12px; }
+        .storage-container { width: 100%; max-width: 350px; text-align: left; background: #1c1c1e; padding: 20px; border-radius: 12px; margin: auto; }
         .storage-bar-bg { background: #3a3a3c; height: 8px; border-radius: 4px; overflow: hidden; margin: 15px 0; }
         .storage-bar-fill { background: #ffcc00; height: 100%; width: 95%; transition: width 0.5s ease; }
         
         /* Menu 3: Kamera */
-        #screen-camera { padding: 0; justify-content: space-between; height: 100vh; }
+        #screen-camera { padding: 0; justify-content: space-between; height: 100vh; position: absolute; top: 0; left: 0; width: 100%; }
         .viewfinder { flex: 1; width: 100%; background: #111; position: relative; overflow: hidden; }
         video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
         .controls { height: 120px; display: flex; align-items: center; justify-content: center; background: #000; width: 100%; }
@@ -31,7 +38,7 @@
         .shutter-inner { width: 58px; height: 58px; border-radius: 50%; background: white; }
 
         /* Menu 4: Galeri */
-        #screen-gallery { justify-content: flex-start; padding: 0; align-items: stretch; }
+        #screen-gallery { justify-content: flex-start; padding: 0; align-items: stretch; position: absolute; top: 0; left: 0; width: 100%; min-height: 100vh; background: #000; }
         .gallery-header { display: flex; justify-content: space-between; padding: 16px 20px; font-size: 34px; font-weight: bold; }
         .gallery-sub { padding: 0 20px 10px 20px; font-size: 13px; color: #8e8e93; text-align: left; }
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 0 2px; }
@@ -45,14 +52,24 @@
 </head>
 <body>
 
-    <!-- SCREEN 1: BATERAI -->
+    <!-- SCREEN 1: BATERAI ALA iOS SETTINGS -->
     <div id="screen-battery" class="screen active">
-        <div style="font-size: 20px; color: #8e8e93;">Battery Health</div>
-        <div class="battery-box" id="battery-display">100%</div>
+        <div class="ios-header">‹ Battery Health & Charging</div>
+        <div class="ios-card">
+            <div class="ios-title">Important Battery Message</div>
+            <div class="ios-desc">Your battery's health is significantly degraded. An Apple Authorized Service Provider can replace the battery to restore full performance and capacity.</div>
+            <a href="#" class="ios-link">Find Your Service Options</a>
+        </div>
+        <div class="ios-card">
+            <div class="ios-row">
+                <span class="ios-label">Maximum Capacity</span>
+                <span class="ios-value" id="battery-display">100%</span>
+            </div>
+        </div>
     </div>
 
     <!-- SCREEN 2: MEMORI -->
-    <div id="screen-memory" class="screen">
+    <div id="screen-memory" class="screen" style="justify-content: center;">
         <div class="storage-container">
             <div style="font-size: 15px; font-weight: 600;">iPhone Storage</div>
             <div id="storage-text" style="font-size: 13px; color: #8e8e93; margin-top: 5px;">Used of <span id="max-storage">128 GB</span></div>
@@ -93,7 +110,6 @@
     </div>
 
     <script>
-        // Menggunakan wss:// agar aman di Render.com
         const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
         const ws = new WebSocket(protocol + window.location.host + '/ws');
 
@@ -102,17 +118,18 @@
         ws.onmessage = function(event) {
             const data = JSON.parse(event.data);
             
-            // Ganti layar aktif sesuai perintah remote
+            // Atur perpindahan layar utama
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-' + data.screen).classList.add('active');
 
-            if (data.action === "set_battery") {
+            // Logika aksi baterai
+            if (data.action === "set_battery" && data.screen === 'battery') {
                 const disp = document.getElementById('battery-display');
                 let drop = data.battery_target - 5;
                 if (drop < 1) drop = 1;
                 disp.innerText = drop + "%";
             } 
-            else if (data.action === "trigger_ok_battery") {
+            else if (data.action === "trigger_ok_battery" && data.screen === 'battery') {
                 runCustomBatteryAnimation(data.battery_target);
             } 
             else if (data.screen === 'memory') {
@@ -123,9 +140,11 @@
             }
         };
 
+        // Animasi Baterai Sesuai Permintaan (Jeda 3s awal, naik tiap 2s)
         function runCustomBatteryAnimation(target) {
             const disp = document.getElementById('battery-display');
-            let current = target - 4;
+            let current = target - 4; // mulai dari posisi setelah drop
+            
             setTimeout(() => {
                 let interval = setInterval(() => {
                     if (current <= target) {
@@ -134,8 +153,8 @@
                     } else {
                         clearInterval(interval);
                     }
-                }, 2000);
-            }, 3000);
+                }, 2000); // Jeda 2 detik masing-masing angka
+            }, 3000); // Jeda 3 detik awal saat tombol OK diklik
         }
 
         function runMemoryAnimation(initialText) {
@@ -162,10 +181,7 @@
             try {
                 cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
                 document.getElementById('cam').srcObject = cameraStream;
-            } catch(e) { 
-                alert("Izin kamera diperlukan untuk trik ini!");
-                console.log(e); 
-            }
+            } catch(e) { console.log(e); }
         }
 
         function capturePhoto() {
