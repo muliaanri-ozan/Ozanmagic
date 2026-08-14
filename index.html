@@ -3,218 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>Battery Health & Charging</title>
+    <title>Settings</title>
     <style>
-        :root {
-            --bg-color: #000000;
-            --card-bg: #1c1c1e;
-            --text-main: #ffffff;
-            --text-muted: #8e8e93;
-            --blue-link: #0a84ff;
-            --separator: #38383a;
-        }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
-            user-select: none;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+            background-color: #000000; color: #ffffff;
+            margin: 0; padding: 20px; user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
+        .screen { display: none; height: 90vh; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .active { display: flex; }
         
-        /* Header iOS */
-        .header {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px 16px 16px;
-            font-size: 17px;
-            font-weight: 600;
-            background-color: var(--bg-color);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        .back-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #2c2c2e;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            margin-right: 14px;
-            font-size: 22px;
-            font-weight: 400;
-            padding-bottom: 2px;
-        }
+        /* Menu 1: Baterai */
+        .battery-box { font-size: 64px; font-weight: 300; margin-top: 20px; }
         
-        .content {
-            padding: 0 16px;
-        }
+        /* Menu 2: Memori */
+        .storage-container { width: 100%; max-width: 350px; text-align: left; background: #1c1c1e; padding: 20px; border-radius: 12px; }
+        .storage-bar-bg { background: #3a3a3c; height: 8px; border-radius: 4px; overflow: hidden; margin: 15px 0; }
+        .storage-bar-fill { background: #ffcc00; height: 100%; width: 95%; transition: width 0.5s ease; }
         
-        /* Kotak Utama ala iOS Settings */
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 10px;
-        }
-        
-        .card-header {
-            font-size: 17px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            letter-spacing: -0.4px;
-        }
-        
-        .card-text {
-            font-size: 15px;
-            color: var(--text-main);
-            line-height: 1.45;
-            letter-spacing: -0.2px;
-        }
-        
-        .divider {
-            height: 1px;
-            background-color: var(--separator);
-            margin: 14px 0;
-        }
-        
-        .blue-link {
-            color: var(--blue-link);
-            font-size: 15px;
-            font-weight: 400;
-            letter-spacing: -0.2px;
-        }
-        
-        /* Baris Menu Sejajar */
-        .row-flex {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 17px;
-            font-weight: 400;
-            letter-spacing: -0.4px;
-        }
-        
-        .value-text {
-            color: var(--text-muted);
-            font-size: 17px;
-            font-weight: 400;
-        }
-        
-        /* Teks Penjelasan di Bawah Kotak */
-        .section-footer {
-            font-size: 13px;
-            color: var(--text-muted);
-            line-height: 1.38;
-            letter-spacing: -0.1px;
-            padding: 0 16px;
-            margin-bottom: 24px;
-        }
+        /* Menu 3: Kamera */
+        #screen-camera { padding: 0; justify-content: space-between; height: 100vh; }
+        .viewfinder { flex: 1; width: 100%; background: #111; position: relative; overflow: hidden; }
+        video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        .controls { height: 120px; display: flex; align-items: center; justify-content: center; background: #000; width: 100%; }
+        .shutter-btn { width: 70px; height: 70px; border-radius: 50%; border: 4px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .shutter-inner { width: 58px; height: 58px; border-radius: 50%; background: white; }
 
-        /* Toggle Switch Khas Apple */
-        .toggle {
-            width: 51px;
-            height: 31px;
-            background-color: #39393d;
-            border-radius: 16px;
-            position: relative;
-            transition: background-color 0.3s;
-        }
-        .toggle-circle {
-            width: 27px;
-            height: 27px;
-            background-color: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.3), 0 3px 1px rgba(0,0,0,0.05);
-            transition: transform 0.3s;
-        }
+        /* Menu 4: Galeri */
+        #screen-gallery { justify-content: flex-start; padding: 0; align-items: stretch; }
+        .gallery-header { display: flex; justify-content: space-between; padding: 16px 20px; font-size: 34px; font-weight: bold; }
+        .gallery-sub { padding: 0 20px 10px 20px; font-size: 13px; color: #8e8e93; text-align: left; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 0 2px; }
+        .grid-item { aspect-ratio: 1/1; background: #1c1c1e; overflow: hidden; cursor: pointer; }
+        .grid-item img { width: 100%; height: 100%; object-fit: cover; }
+        
+        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; }
+        #lightbox img { max-width: 95%; max-height: 85vh; border-radius: 4px; }
+        .secret-download { position: fixed; bottom: 15px; right: 15px; width: 35px; height: 35px; opacity: 0.1; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <div class="header">
-        <div class="back-btn">‹</div>
-        Battery Health & Charging
+    <!-- SCREEN 1: BATERAI -->
+    <div id="screen-battery" class="screen active">
+        <div style="font-size: 20px; color: #8e8e93;">Battery Health</div>
+        <div class="battery-box" id="battery-display">100%</div>
     </div>
 
-    <div class="content">
-        <!-- Kotak 1: Important Battery Message -->
-        <div class="card" style="margin-bottom: 24px;">
-            <div class="card-header">Important Battery Message</div>
-            <div class="card-text">
-                Your battery's health is significantly degraded. An Apple Authorized Service Provider can replace the battery to restore full performance and capacity.
+    <!-- SCREEN 2: MEMORI -->
+    <div id="screen-memory" class="screen">
+        <div class="storage-container">
+            <div style="font-size: 15px; font-weight: 600;">iPhone Storage</div>
+            <div id="storage-text" style="font-size: 13px; color: #8e8e93; margin-top: 5px;">Used of <span id="max-storage">128 GB</span></div>
+            <div class="storage-bar-bg">
+                <div id="storage-fill" class="storage-bar-fill"></div>
             </div>
-            <div class="divider"></div>
-            <div class="blue-link">Find Your Service Options</div>
+            <div id="available-text" style="font-size: 12px; color: #8e8e93; text-align: right;">11 GB available</div>
         </div>
+    </div>
 
-        <!-- Kotak 2: Maximum Capacity (Presisi dengan Angka di dalam Kotak) -->
-        <div class="card">
-            <div class="row-flex">
-                <span>Maximum Capacity</span>
-                <!-- ID battery-level inilah yang akan dikendalikan oleh remotemu -->
-                <span class="value-text" id="battery-level">76%</span>
-            </div>
+    <!-- SCREEN 3: KAMERA -->
+    <div id="screen-camera" class="screen">
+        <div class="viewfinder">
+            <video id="cam" autoplay playsinline></video>
+            <canvas id="canvas" style="display:none;"></canvas>
         </div>
-        <div class="section-footer">
-            This is a measure of battery capacity relative to when it was new. Lower capacity may result in fewer hours of usage between charges.
+        <div class="controls">
+            <div class="shutter-btn" onclick="capturePhoto()"><div class="shutter-inner"></div></div>
         </div>
+    </div>
 
-        <!-- Kotak 3: Peak Performance -->
-        <div class="card">
-            <div class="row-flex">
-                <span>Peak Performance Capability</span>
+    <!-- SCREEN 4: GALERI -->
+    <div id="screen-gallery" class="screen" style="text-align: left;">
+        <div class="gallery-header">Library</div>
+        <div class="gallery-sub" id="gal-count">1 Item</div>
+        <div class="grid">
+            <div class="grid-item" onclick="openPhoto()">
+                <img id="selfie-result" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300" alt="Selfie">
             </div>
         </div>
-        <div class="section-footer">
-            Built-in dynamic software and hardware systems will help counter performance impacts that may be noticed as your iPhone battery chemically ages.
+        <div class="secret-download" onclick="downloadPhoto()">
+            <div style="width:14px; height:4px; border-top:2px solid white; border-bottom:2px solid white;"></div>
         </div>
+    </div>
 
-        <!-- Kotak 4: Optimized Charging -->
-        <div class="card">
-            <div class="row-flex">
-                <span>Optimized Battery Charging</span>
-                <div class="toggle"><div class="toggle-circle"></div></div>
-            </div>
-        </div>
-        <div class="section-footer" style="margin-bottom: 40px;">
-            To reduce battery aging, iPhone learns from your daily charging routine so it can wait to finish charging past 80% until you need to use it.
-        </div>
+    <div id="lightbox" onclick="this.style.display='none'">
+        <img id="lightbox-img" src="">
     </div>
 
     <script>
-        // Mesin WebSocket Penerima Sinyal dari Controller
+        // Menggunakan wss:// agar aman di Render.com
         const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
         const ws = new WebSocket(protocol + window.location.host + '/ws');
+
+        let cameraStream = null;
 
         ws.onmessage = function(event) {
             const data = JSON.parse(event.data);
             
-            if (data.action === "INCREASE_BATTERY") {
-                let batteryElement = document.getElementById("battery-level");
-                let currentNumber = parseInt(batteryElement.innerText.replace('%', ''));
-                let targetNumber = data.target; 
-                
-                // Animasi Hitungan Naik yang Mulus
+            // Ganti layar aktif sesuai perintah remote
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-' + data.screen).classList.add('active');
+
+            if (data.action === "set_battery") {
+                const disp = document.getElementById('battery-display');
+                let drop = data.battery_target - 5;
+                if (drop < 1) drop = 1;
+                disp.innerText = drop + "%";
+            } 
+            else if (data.action === "trigger_ok_battery") {
+                runCustomBatteryAnimation(data.battery_target);
+            } 
+            else if (data.screen === 'memory') {
+                runMemoryAnimation(data.memory_target);
+            } 
+            else if (data.screen === 'camera') {
+                startCamera();
+            }
+        };
+
+        function runCustomBatteryAnimation(target) {
+            const disp = document.getElementById('battery-display');
+            let current = target - 4;
+            setTimeout(() => {
                 let interval = setInterval(() => {
-                    if (currentNumber < targetNumber) {
-                        currentNumber++;
-                        batteryElement.innerText = currentNumber + "%";
+                    if (current <= target) {
+                        disp.innerText = current + "%";
+                        current++;
                     } else {
                         clearInterval(interval);
                     }
-                }, 500); 
+                }, 2000);
+            }, 3000);
+        }
+
+        function runMemoryAnimation(initialText) {
+            const availText = document.getElementById('available-text');
+            const fillBar = document.getElementById('storage-fill');
+            availText.innerText = initialText + " available";
+            fillBar.style.width = "85%";
+
+            setTimeout(() => {
+                availText.innerText = "4 GB available";
+                fillBar.style.width = "40%";
+                setTimeout(() => {
+                    availText.innerText = "800 MB available";
+                    fillBar.style.width = "15%";
+                    setTimeout(() => {
+                        availText.innerText = "5 MB available";
+                        fillBar.style.width = "2%";
+                    }, 1000);
+                }, 1000);
+            }, 3000);
+        }
+
+        async function startCamera() {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+                document.getElementById('cam').srcObject = cameraStream;
+            } catch(e) { 
+                alert("Izin kamera diperlukan untuk trik ini!");
+                console.log(e); 
             }
-        };
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('cam');
+            const canvas = document.getElementById('canvas');
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            document.getElementById('selfie-result').src = canvas.toDataURL('image/jpeg');
+            if(navigator.vibrate) navigator.vibrate(100);
+        }
+
+        function openPhoto() {
+            document.getElementById('lightbox-img').src = document.getElementById('selfie-result').src;
+            document.getElementById('lightbox').style.display = 'flex';
+        }
+
+        function downloadPhoto() {
+            const a = document.createElement('a');
+            a.href = document.getElementById('selfie-result').src;
+            a.download = 'Magic-Selfie.jpg';
+            a.click();
+        }
     </script>
 </body>
 </html>
