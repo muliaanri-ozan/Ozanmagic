@@ -3,27 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>Battery Health</title>
+    <title>Battery Health & Charging</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", sans-serif;
             background-color: #000000; color: #ffffff;
-            margin: 0; padding: 16px; user-select: none;
+            margin: 0; padding: 12px; user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
-        .screen { display: none; min-height: 85vh; flex-direction: column; text-align: left; }
+        .screen { display: none; min-height: 90vh; flex-direction: column; text-align: left; }
         .active { display: flex; }
         
-        /* Menu 1: Baterai ala iOS Settings */
-        .ios-header { font-size: 22px; font-weight: bold; margin: 20px 0 15px 5px; display: flex; align-items: center; }
-        .ios-card { background: #1c1c1e; border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+        /* Menu 1: Baterai ala iOS Asli */
+        .ios-nav { display: flex; align-items: center; margin: 10px 0 20px 0; }
+        .back-btn { width: 32px; height: 32px; background: #1c1c1e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #0a84ff; margin-right: 12px; font-weight: bold; }
+        .ios-header-title { font-size: 20px; font-weight: 600; letter-spacing: -0.4px; }
+        
+        .ios-card { background: #1c1c1e; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
         .ios-title { font-size: 15px; font-weight: 600; color: #ff453a; margin-bottom: 8px; }
         .ios-desc { font-size: 13px; color: #8e8e93; line-height: 1.4; margin-bottom: 12px; }
-        .ios-link { font-size: 13px; color: #0a84ff; text-decoration: none; display: block; margin-bottom: 15px; }
-        .ios-row { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 0.5px solid #38383a; }
+        .ios-link { font-size: 13px; color: #0a84ff; text-decoration: none; display: block; }
+        
+        .ios-row { display: flex; justify-content: space-between; align-items: center; }
         .ios-label { font-size: 15px; font-weight: 400; }
         .ios-value { font-size: 17px; font-weight: 400; color: #8e8e93; }
+        .ios-subtext { font-size: 12px; color: #8e8e93; line-height: 1.35; margin-top: 10px; }
         
+        .ios-toggle { width: 51px; height: 31px; background: #30d158; border-radius: 16px; position: relative; display: inline-block; }
+        .ios-toggle::after { content: ''; position: absolute; top: 2px; left: 22px; width: 27px; height: 27px; background: white; border-radius: 50%; box-shadow: 0 3px 8px rgba(0,0,0,0.3); }
+
         /* Menu 2: Memori */
         .storage-container { width: 100%; max-width: 350px; text-align: left; background: #1c1c1e; padding: 20px; border-radius: 12px; margin: auto; }
         .storage-bar-bg { background: #3a3a3c; height: 8px; border-radius: 4px; overflow: hidden; margin: 15px 0; }
@@ -52,19 +60,40 @@
 </head>
 <body>
 
-    <!-- SCREEN 1: BATERAI ALA iOS SETTINGS -->
+    <!-- SCREEN 1: BATERAI ALA iOS SETTINGS (100% IDENTIK) -->
     <div id="screen-battery" class="screen active">
-        <div class="ios-header">‹ Battery Health & Charging</div>
+        <div class="ios-nav">
+            <div class="back-btn">&lsaquo;</div>
+            <div class="ios-header-title">Battery Health & Charging</div>
+        </div>
+        
         <div class="ios-card">
             <div class="ios-title">Important Battery Message</div>
             <div class="ios-desc">Your battery's health is significantly degraded. An Apple Authorized Service Provider can replace the battery to restore full performance and capacity.</div>
             <a href="#" class="ios-link">Find Your Service Options</a>
         </div>
+        
         <div class="ios-card">
             <div class="ios-row">
                 <span class="ios-label">Maximum Capacity</span>
                 <span class="ios-value" id="battery-display">100%</span>
             </div>
+            <div class="ios-subtext">This is a measure of battery capacity relative to when it was new. Lower capacity may result in fewer hours of usage between charges.</div>
+        </div>
+
+        <div class="ios-card">
+            <div class="ios-row" style="margin-bottom: 8px;">
+                <span class="ios-label">Peak Performance Capability</span>
+            </div>
+            <div class="ios-subtext" style="margin-top:0;">Built-in dynamic software and hardware systems will help counter performance impacts that may be noticed as your iPhone battery chemically ages.</div>
+        </div>
+
+        <div class="ios-card">
+            <div class="ios-row">
+                <span class="ios-label">Optimized Battery Charging</span>
+                <div class="ios-toggle"></div>
+            </div>
+            <div class="ios-subtext">To reduce battery aging, iPhone learns from your daily charging routine so it can wait to finish charging past 80% until you need to use it.</div>
         </div>
     </div>
 
@@ -118,11 +147,9 @@
         ws.onmessage = function(event) {
             const data = JSON.parse(event.data);
             
-            // Atur perpindahan layar utama
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-' + data.screen).classList.add('active');
 
-            // Logika aksi baterai
             if (data.action === "set_battery" && data.screen === 'battery') {
                 const disp = document.getElementById('battery-display');
                 let drop = data.battery_target - 5;
@@ -140,10 +167,9 @@
             }
         };
 
-        // Animasi Baterai Sesuai Permintaan (Jeda 3s awal, naik tiap 2s)
         function runCustomBatteryAnimation(target) {
             const disp = document.getElementById('battery-display');
-            let current = target - 4; // mulai dari posisi setelah drop
+            let current = target - 4;
             
             setTimeout(() => {
                 let interval = setInterval(() => {
@@ -153,8 +179,8 @@
                     } else {
                         clearInterval(interval);
                     }
-                }, 2000); // Jeda 2 detik masing-masing angka
-            }, 3000); // Jeda 3 detik awal saat tombol OK diklik
+                }, 2000);
+            }, 3000);
         }
 
         function runMemoryAnimation(initialText) {
