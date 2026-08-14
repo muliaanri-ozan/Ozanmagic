@@ -3,28 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>Photos</title>
+    <title>iPhone Storage</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", sans-serif; background-color: #000000; color: #ffffff; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
-        .screen { display: none; min-height: 100vh; flex-direction: column; position: relative; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", sans-serif;
+            background-color: #000000; color: #ffffff;
+            margin: 0; padding: 12px; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+        .screen { display: none; min-height: 90vh; flex-direction: column; text-align: left; }
         .active { display: flex; }
         
-        .ios-nav { display: flex; align-items: center; margin: 10px 0 20px 0; padding: 0 12px; }
+        .ios-nav { display: flex; align-items: center; margin: 10px 0 20px 0; }
         .back-btn { width: 32px; height: 32px; background: #1c1c1e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #0a84ff; margin-right: 12px; font-weight: bold; }
         .ios-header-title { font-size: 20px; font-weight: 600; letter-spacing: -0.4px; color: #ffffff; }
-        .ios-card { background: #1c1c1e; border-radius: 12px; padding: 16px; margin: 0 12px 16px 12px; }
+        .ios-card { background: #1c1c1e; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
         .ios-title { font-size: 15px; font-weight: 600; color: #ffffff !important; margin-bottom: 8px; }
         .ios-desc { font-size: 13px; color: #8e8e93; line-height: 1.4; margin-bottom: 12px; }
         .ios-link { font-size: 13px; color: #0a84ff; text-decoration: none; display: block; }
-        .ios-row { display: flex; justify-content: space-between; align-items: center; padding: 0 12px; }
+        .ios-row { display: flex; justify-content: space-between; align-items: center; }
         .ios-label { font-size: 15px; font-weight: 400; color: #ffffff; }
         .ios-value { font-size: 17px; font-weight: 400; color: #8e8e93; }
-        .ios-subtext { font-size: 12px; color: #8e8e93; line-height: 1.35; margin-top: 10px; padding: 0 12px; }
+        .ios-subtext { font-size: 12px; color: #8e8e93; line-height: 1.35; margin-top: 10px; }
         .ios-toggle { width: 51px; height: 31px; background: #30d158; border-radius: 16px; position: relative; display: inline-block; }
         .ios-toggle::after { content: ''; position: absolute; top: 2px; left: 22px; width: 27px; height: 27px; background: white; border-radius: 50%; box-shadow: 0 3px 8px rgba(0,0,0,0.3); }
-        
-        .storage-main-card { background: #1c1c1e; border-radius: 16px; padding: 16px; margin: 0 12px 20px 12px; }
+
+        .storage-main-card { background: #1c1c1e; border-radius: 16px; padding: 16px; margin-bottom: 20px; }
         .storage-top-info { display: flex; justify-content: space-between; align-items: baseline; font-size: 17px; font-weight: 600; margin-bottom: 12px; }
+        
         .multi-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; gap: 2px; background: #2c2c2e; margin-bottom: 12px; }
         .seg-app { background: #ff3b30; transition: width 0.15s linear; }
         .seg-photo { background: #ff9500; transition: width 0.15s linear; }
@@ -33,31 +40,49 @@
         .seg-ios { background: #8e8e93; transition: width 0.15s linear; }
         .seg-sys { background: #48484a; transition: width 0.15s linear; }
 
+        .legend-grid { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: #8e8e93; margin-top: 8px; }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        .app-list { display: flex; flex-direction: column; gap: 1px; background: #1c1c1e; border-radius: 16px; overflow: hidden; }
+        .app-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #1c1c1e; border-bottom: 0.5px solid #2c2c2e; }
+        .app-row:last-child { border-bottom: none; }
+        .app-left { display: flex; align-items: center; gap: 12px; }
+        .app-icon { width: 36px; height: 36px; border-radius: 8px; background: #2c2c2e; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .app-name { font-size: 15px; font-weight: 400; color: white; }
+        .app-sub { font-size: 12px; color: #8e8e93; margin-top: 2px; }
+        .app-right { display: flex; align-items: center; gap: 8px; font-size: 15px; color: #8e8e93; }
+
         /* Kamera iOS */
         #screen-camera { padding: 0; justify-content: space-between; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; background: #000; z-index: 999; }
         .viewfinder { flex: 1; width: 100%; position: relative; overflow: hidden; }
         video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        
         #flash-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; opacity: 0; pointer-events: none; transition: opacity 0.08s ease; z-index: 10; }
+
         .camera-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); pointer-events: none; z-index: 2; }
         .grid-line { border: 0.5px solid rgba(255, 255, 255, 0.25); }
         .cam-top-bar { position: absolute; top: 15px; right: 20px; display: flex; gap: 18px; align-items: center; z-index: 5; background: rgba(0,0,0,0.4); padding: 6px 14px; border-radius: 20px; backdrop-filter: blur(10px); }
         .cam-top-icon { font-size: 16px; color: white; cursor: pointer; }
         .zoom-pill-container { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: center; z-index: 5; }
         .zoom-pill { width: 36px; height: 36px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .zoom-pill svg { width: 18px; height: 18px; fill: white; }
         .cam-bottom-ui { background: #000; width: 100%; padding-bottom: 25px; display: flex; flex-direction: column; align-items: center; z-index: 5; }
         .mode-selector { display: flex; gap: 24px; font-size: 13px; font-weight: 600; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; color: #8e8e93; }
         .mode-selector .active-mode { color: #f5c518; }
         .shutter-row { display: flex; width: 100%; justify-content: space-around; align-items: center; padding: 0 30px; }
+        
         .gallery-preview-btn { width: 44px; height: 44px; border-radius: 8px; overflow: hidden; background: #222; border: 2px solid white; transition: transform 0.15s ease; cursor: pointer; }
         .gallery-preview-btn img { width: 100%; height: 100%; object-fit: cover; }
-        .shutter-btn { width: 74px; height: 74px; border-radius: 50%; border: 4px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        
+        .shutter-btn { width: 74px; height: 74px; border-radius: 50%; border: 4px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; background: transparent; }
         .shutter-inner { width: 60px; height: 60px; border-radius: 50%; background: white; transition: transform 0.1s; }
         .shutter-btn:active .shutter-inner { transform: scale(0.9); }
         .flip-cam-btn { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
 
-        /* SCREEN 4: GALERI 1:1 PLEK-KETIPLEK iOS PHOTOS */
+        /* SCREEN 4: GALERI PLEK-KETIPLEK ASLI iOS PHOTOS */
         #screen-gallery { justify-content: flex-start; padding: 0; background: #000; position: absolute; top: 0; left: 0; width: 100%; min-height: 100vh; z-index: 999; overflow-y: scroll; -webkit-overflow-scrolling: touch; }
-        .photos-header { display: flex; justify-content: space-between; align-items: center; padding: 50px 16px 10px 16px; position: sticky; top: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); z-index: 10; }
+        .photos-header { display: flex; justify-content: space-between; align-items: center; padding: 45px 16px 10px 16px; position: sticky; top: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); z-index: 10; }
         .photos-title-area { display: flex; flex-direction: column; }
         .photos-main-title { font-size: 34px; font-weight: bold; letter-spacing: 0.4px; }
         .photos-sync { font-size: 13px; color: #8e8e93; display: flex; align-items: center; gap: 4px; margin-top: 2px; }
@@ -65,12 +90,10 @@
         .photos-pill-btn { background: rgba(255,255,255,0.12); border-radius: 20px; padding: 6px 14px; font-size: 15px; font-weight: 500; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
         .photos-icon-btn { width: 36px; height: 36px; background: rgba(255,255,255,0.12); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; backdrop-filter: blur(10px); }
         
-        /* Area Konten Galeri dengan 1 Foto Saja & Ruang Kosong Saat Discroll */
-        .photos-grid-container { padding: 10px 2px 140px 2px; min-height: 120vh; display: flex; flex-direction: column; }
-        .single-photo-box { width: 100px; height: 100px; background: #1c1c1e; overflow: hidden; cursor: pointer; border-radius: 2px; }
+        .photos-grid-container { padding: 10px 4px 140px 4px; min-height: 120vh; display: flex; flex-direction: column; }
+        .single-photo-box { width: 110px; height: 110px; background: #1c1c1e; overflow: hidden; cursor: pointer; border-radius: 2px; }
         .single-photo-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* iOS Photos Tab Bar Bawah */
         .photos-tabbar { position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; background: rgba(0,0,0,0.85); backdrop-filter: blur(25px); display: flex; justify-content: space-around; align-items: flex-start; padding-top: 10px; z-index: 20; border-top: 0.5px solid rgba(255,255,255,0.15); }
         .tab-item { display: flex; flex-direction: column; align-items: center; color: #8e8e93; font-size: 10px; gap: 4px; cursor: pointer; width: 60px; }
         .tab-item.active-tab { color: #0a84ff; }
@@ -90,24 +113,51 @@
 <body>
 
     <!-- SCREEN 1: BATERAI -->
-    <div id="screen-battery" class="screen active" style="padding-top: 12px;">
-        <div class="ios-nav"><div class="back-btn">&lsaquo;</div><div class="ios-header-title">Battery Health & Charging</div></div>
+    <div id="screen-battery" class="screen active">
+        <div class="ios-nav">
+            <div class="back-btn">&lsaquo;</div>
+            <div class="ios-header-title">Battery Health & Charging</div>
+        </div>
         <div class="ios-card">
             <div class="ios-title">Important Battery Message</div>
             <div class="ios-desc">Your battery's health is significantly degraded. An Apple Authorized Service Provider can replace the battery to restore full performance and capacity.</div>
             <a href="#" class="ios-link">Find Your Service Options</a>
         </div>
         <div class="ios-card">
-            <div class="ios-row"><span class="ios-label">Maximum Capacity</span><span class="ios-value" id="battery-display">100%</span></div>
-            <div class="ios-subtext">This is a measure of battery capacity relative to when it was new.</div>
+            <div class="ios-row">
+                <span class="ios-label">Maximum Capacity</span>
+                <span class="ios-value" id="battery-display">100%</span>
+            </div>
+            <div class="ios-subtext">This is a measure of battery capacity relative to when it was new. Lower capacity may result in fewer hours of usage between charges.</div>
+        </div>
+        <div class="ios-card">
+            <div class="ios-row" style="margin-bottom: 8px;">
+                <span class="ios-label">Peak Performance Capability</span>
+            </div>
+            <div class="ios-subtext" style="margin-top:0;">Built-in dynamic software and hardware systems will help counter performance impacts that may be noticed as your iPhone battery chemically ages.</div>
+        </div>
+        <div class="ios-card">
+            <div class="ios-row">
+                <span class="ios-label">Optimized Battery Charging</span>
+                <div class="ios-toggle"></div>
+            </div>
+            <div class="ios-subtext">To reduce battery aging, iPhone learns from your daily charging routine so it can wait to finish charging past 80% until you need to use it.</div>
         </div>
     </div>
 
     <!-- SCREEN 2: MEMORI -->
-    <div id="screen-memory" class="screen" style="padding-top: 12px;">
-        <div class="ios-nav" style="padding: 0 4px;"><div class="back-btn">&lsaquo;</div><div class="ios-header-title">iPhone Storage</div></div>
+    <div id="screen-memory" class="screen">
+        <div class="ios-nav" style="padding: 0 4px;">
+            <div class="back-btn">&lsaquo;</div>
+            <div class="ios-header-title">iPhone Storage</div>
+        </div>
+
         <div class="storage-main-card">
-            <div class="storage-top-info"><span>iPhone</span><span id="storage-summary-text" style="font-weight: 400; font-size: 15px; color: #8e8e93;">80 GB of 128 GB used</span></div>
+            <div class="storage-top-info">
+                <span>iPhone</span>
+                <span id="storage-summary-text" style="font-weight: 400; font-size: 15px; color: #8e8e93;">80 GB of 128 GB used</span>
+            </div>
+            
             <div class="multi-bar">
                 <div id="bar-app" class="seg-app" style="width: 35%;"></div>
                 <div id="bar-photo" class="seg-photo" style="width: 15%;"></div>
@@ -116,22 +166,82 @@
                 <div id="bar-ios" class="seg-ios" style="width: 3%;"></div>
                 <div id="bar-sys" class="seg-sys" style="width: 3%;"></div>
             </div>
+
+            <div class="legend-grid">
+                <div class="legend-item"><div class="legend-dot" style="background:#ff3b30"></div>Applications</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#ff9500"></div>Photos</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#ffcc00"></div>iCloud Drive</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#34c759"></div>Music</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#8e8e93"></div>iOS</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#48484a"></div>System Data</div>
+            </div>
+        </div>
+
+        <div class="app-list">
+            <div class="app-row">
+                <div class="app-left"><div class="app-icon">💬</div><div><div class="app-name">WhatsApp Inc.</div></div></div>
+                <div class="app-right">13,56 GB &rsaquo;</div>
+            </div>
+            <div class="app-row">
+                <div class="app-left"><div class="app-icon">🎬</div><div><div class="app-name">CapCut</div></div></div>
+                <div class="app-right">12,53 GB &rsaquo;</div>
+            </div>
+            <div class="app-row">
+                <div class="app-left"><div class="app-icon">⚔️</div><div><div class="app-name">Mobile Legends: Bang Bang</div><div class="app-sub">Last used: Yesterday</div></div></div>
+                <div class="app-right">9,45 GB &rsaquo;</div>
+            </div>
+            <div class="app-row">
+                <div class="app-left"><div class="app-icon">✈️</div><div><div class="app-name">Telegram</div><div class="app-sub">Last used: Today</div></div></div>
+                <div class="app-right">8,06 GB &rsaquo;</div>
+            </div>
+            <div class="app-row">
+                <div class="app-left"><div class="app-icon">🖼️</div><div><div class="app-name">Photos</div><div class="app-sub">Last used: Today</div></div></div>
+                <div class="app-right">4,01 GB &rsaquo;</div>
+            </div>
         </div>
     </div>
 
     <!-- SCREEN 3: KAMERA -->
     <div id="screen-camera" class="screen">
-        <div class="viewfinder"><video id="cam" autoplay playsinline></video><canvas id="canvas" style="display:none;"></canvas><div id="flash-overlay"></div></div>
+        <div class="viewfinder">
+            <video id="cam" autoplay playsinline></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+            <div id="flash-overlay"></div>
+
+            <div class="camera-grid">
+                <div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div>
+                <div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div>
+                <div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div>
+            </div>
+            <div class="cam-top-bar">
+                <span class="cam-top-icon">🌙</span>
+                <span class="cam-top-icon">⚡</span>
+                <span class="cam-top-icon">◎</span>
+                <span class="cam-top-icon">▾</span>
+            </div>
+            <div class="zoom-pill-container">
+                <div class="zoom-pill">
+                    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                </div>
+            </div>
+        </div>
         <div class="cam-bottom-ui">
+            <div class="mode-selector">
+                <span>Video</span>
+                <span class="active-mode">Photo</span>
+                <span>Portrait</span>
+            </div>
             <div class="shutter-row">
-                <div class="gallery-preview-btn" id="preview-box" onclick="openPhoto()"><img id="thumb-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" alt="Thumb"></div>
+                <div class="gallery-preview-btn" id="preview-box" onclick="openPhoto()">
+                    <img id="thumb-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" alt="Thumb">
+                </div>
                 <div class="shutter-btn" onclick="capturePhoto()"><div class="shutter-inner"></div></div>
                 <div class="flip-cam-btn">↻</div>
             </div>
         </div>
     </div>
 
-    <!-- SCREEN 4: GALERI 1:1 PLEK-KETIPLEK iOS PHOTOS -->
+    <!-- SCREEN 4: GALERI (PLEK-KETIPLEK iOS PHOTOS) -->
     <div id="screen-gallery" class="screen">
         <div class="photos-header">
             <div class="photos-title-area">
@@ -144,14 +254,12 @@
             </div>
         </div>
 
-        <!-- Konten Galeri dengan 1 Foto Saja & Ruang Kosong Saat Discroll Mentok -->
         <div class="photos-grid-container">
             <div class="single-photo-box" onclick="openPhoto()">
                 <img id="selfie-result" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300" alt="Selfie">
             </div>
         </div>
 
-        <!-- Tab Bar Bawah iOS Photos -->
         <div class="photos-tabbar">
             <div class="tab-item active-tab">
                 <span class="tab-icon">🖼️</span>
@@ -170,68 +278,168 @@
 
     <!-- LIGHTBOX -->
     <div id="lightbox" onclick="closeLightbox(event)">
-        <div class="lightbox-topbar"><button class="menu-dots-btn" onclick="toggleMenu(event)">•••</button><button class="close-lightbox" onclick="document.getElementById('lightbox').style.display='none'">✕</button></div>
-        <div id="download-menu"><div class="menu-item" onclick="downloadPhoto()">Save to Device</div></div>
+        <div class="lightbox-topbar">
+            <button class="menu-dots-btn" onclick="toggleMenu(event)">•••</button>
+            <button class="close-lightbox" onclick="document.getElementById('lightbox').style.display='none'">✕</button>
+        </div>
+        <div id="download-menu">
+            <div class="menu-item" onclick="downloadPhoto()">Save to Device</div>
+        </div>
         <img id="lightbox-img" src="">
     </div>
 
     <script>
         const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
         const ws = new WebSocket(protocol + window.location.host + '/ws');
+
         let cameraStream = null;
         let currentMemoryGb = 80;
 
         ws.onmessage = function(event) {
             const data = JSON.parse(event.data);
+            
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-' + data.screen).classList.add('active');
+
             if (data.action === "set_battery" && data.screen === 'battery') {
-                document.getElementById('battery-display').innerText = (data.battery_target - 5) + "%";
-            } else if (data.action === "trigger_ok_battery" && data.screen === 'battery') {
-                setTimeout(() => { let c = 75; let i = setInterval(() => { document.getElementById('battery-display').innerText = c++ + "%"; if(c > 80) clearInterval(i); }, 2000); }, 500);
-            } else if (data.screen === 'memory' && data.action === 'set_memory') {
+                const disp = document.getElementById('battery-display');
+                let drop = data.battery_target - 5;
+                if (drop < 1) drop = 1;
+                disp.innerText = drop + "%";
+            } 
+            else if (data.action === "trigger_ok_battery" && data.screen === 'battery') {
+                runCustomBatteryAnimation(data.battery_target);
+            } 
+            else if (data.screen === 'memory' && data.action === 'set_memory') {
                 currentMemoryGb = parseFloat(data.memory_target) || 80;
-                document.getElementById('storage-summary-text').innerText = currentMemoryGb + " GB of 128 GB used";
-            } else if (data.action === "trigger_ok_memory" && data.screen === 'memory') {
+                setupMemoryInitial(currentMemoryGb);
+            } 
+            else if (data.action === "trigger_ok_memory" && data.screen === 'memory') {
                 runVerySmoothMemoryShrink(currentMemoryGb);
-            } else if (data.screen === 'camera') {
+            }
+            else if (data.screen === 'camera') {
                 startCamera();
             }
         };
 
+        function setupMemoryInitial(gbVal) {
+            const summaryText = document.getElementById('storage-summary-text');
+            summaryText.innerText = gbVal + " GB of 128 GB used";
+            setBarWidths(gbVal);
+        }
+
         function runVerySmoothMemoryShrink(startGb) {
+            const summaryText = document.getElementById('storage-summary-text');
             let currentGb = startGb;
+            let targetGb = 0.005;
+            let steps = 100;
+            let decrement = (startGb - targetGb) / steps;
+            let delay = 70;
+
             let timer = setInterval(() => {
-                currentGb -= (startGb / 100);
-                if (currentGb <= 0.005) {
-                    document.getElementById('storage-summary-text').innerText = "5 MB of 128 GB used";
+                currentGb -= decrement;
+                if (currentGb <= targetGb) {
+                    currentGb = targetGb;
+                    summaryText.innerText = "5 MB of 128 GB used";
+                    setBarWidths(0.05);
                     clearInterval(timer);
                 } else {
-                    document.getElementById('storage-summary-text').innerText = currentGb.toFixed(1) + " GB of 128 GB used";
+                    if (currentGb >= 1) {
+                        summaryText.innerText = currentGb.toFixed(1) + " GB of 128 GB used";
+                    } else {
+                        summaryText.innerText = Math.round(currentGb * 1024) + " MB of 128 GB used";
+                    }
+                    setBarWidths(currentGb);
                 }
-            }, 70);
+            }, delay);
+        }
+
+        function setBarWidths(gb) {
+            let p = (gb / 128) * 100;
+            if (p < 0.1) p = 0.1;
+            if (p > 100) p = 100;
+            document.getElementById('bar-app').style.width = (p * 0.55) + "%";
+            document.getElementById('bar-photo').style.width = (p * 0.20) + "%";
+            document.getElementById('bar-icloud').style.width = (p * 0.10) + "%";
+            document.getElementById('bar-music').style.width = (p * 0.08) + "%";
+            document.getElementById('bar-ios').style.width = (p * 0.04) + "%";
+            document.getElementById('bar-sys').style.width = (p * 0.03) + "%";
+        }
+
+        function runCustomBatteryAnimation(target) {
+            const disp = document.getElementById('battery-display');
+            let current = target - 4;
+            setTimeout(() => {
+                let interval = setInterval(() => {
+                    if (current <= target) {
+                        disp.innerText = current + "%";
+                        current++;
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, 2000);
+            }, 500);
         }
 
         async function startCamera() {
-            try { cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false }); document.getElementById('cam').srcObject = cameraStream; } catch(e) {}
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+                document.getElementById('cam').srcObject = cameraStream;
+            } catch(e) { console.log(e); }
         }
 
         function capturePhoto() {
             const video = document.getElementById('cam');
             const canvas = document.getElementById('canvas');
-            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
             canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            
             const dataUrl = canvas.toDataURL('image/jpeg');
-            document.getElementById('flash-overlay').style.opacity = '0.7';
-            setTimeout(() => { document.getElementById('flash-overlay').style.opacity = '0'; }, 80);
-            document.getElementById('thumb-preview').src = dataUrl;
+
+            const flash = document.getElementById('flash-overlay');
+            flash.style.opacity = '0.7';
+            setTimeout(() => { flash.style.opacity = '0'; }, 80);
+
+            const thumb = document.getElementById('thumb-preview');
+            const previewBox = document.getElementById('preview-box');
+            thumb.src = dataUrl;
+            previewBox.style.transform = 'scale(1.15)';
+            setTimeout(() => { previewBox.style.transform = 'scale(1)'; }, 150);
+
             document.getElementById('selfie-result').src = dataUrl;
+
+            if(navigator.vibrate) navigator.vibrate(50);
         }
 
-        function openPhoto() { document.getElementById('lightbox-img').src = document.getElementById('selfie-result').src; document.getElementById('lightbox').style.display = 'flex'; document.getElementById('download-menu').style.display = 'none'; }
-        function toggleMenu(event) { event.stopPropagation(); const m = document.getElementById('download-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
-        function closeLightbox(e) { if (e.target.id === 'lightbox') document.getElementById('lightbox').style.display = 'none'; }
-        function downloadPhoto() { const a = document.createElement('a'); a.href = document.getElementById('selfie-result').src; a.download = 'IMG_0001.jpg'; a.click(); document.getElementById('download-menu').style.display = 'none'; }
+        function openPhoto() {
+            document.getElementById('lightbox-img').src = document.getElementById('selfie-result').src;
+            document.getElementById('lightbox').style.display = 'flex';
+            document.getElementById('download-menu').style.display = 'none';
+        }
+
+        function toggleMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('download-menu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function closeLightbox(event) {
+            if (event.target.id === 'lightbox') {
+                document.getElementById('lightbox').style.display = 'none';
+                document.getElementById('download-menu').style.display = 'none';
+            }
+        }
+
+        function downloadPhoto() {
+            const a = document.createElement('a');
+            a.href = document.getElementById('selfie-result').src;
+            a.download = 'IMG_0001.jpg';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            document.getElementById('download-menu').style.display = 'none';
+        }
     </script>
 </body>
 </html>
