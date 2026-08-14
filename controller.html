@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ozan Magic Controller</title>
     <style>
         body { font-family: -apple-system, sans-serif; background: #111; color: white; padding: 20px; text-align: center; }
@@ -11,6 +11,7 @@
         input { width: 80%; padding: 10px; font-size: 18px; border-radius: 6px; border: 1px solid #444; background: #000; color: white; text-align: center; margin-top: 5px; }
         .nav-btn { background: #30d158; margin-top: 5px; }
         .ok-btn { background: #ff9f0a; }
+        .process-btn { background: #ff3b30; }
     </style>
 </head>
 <body>
@@ -33,20 +34,17 @@
         <button class="ok-btn" onclick="sendBatteryOk()">OK (Jeda 3s & Naik 2s)</button>
     </div>
 
-    <!-- Kontrol Memori -->
+    <!-- Kontrol Memori (Sesuai Permintaan) -->
     <div class="box">
-        <h3>Atur Sisa Memori Awal</h3>
-        <input type="text" id="mem-val" value="11 GB">
-        <button onclick="sendMemory()">PROSES MENYUSUT (OK)</button>
+        <h3>Atur Sisa Memori Awal (GB)</h3>
+        <input type="number" id="mem-val" value="80">
+        <button class="ok-btn" onclick="sendMemoryOk()">OK (Set Tampilan Awal)</button>
+        <button class="process-btn" onclick="sendMemoryProcess()">PROSES (Menyusut Pelan ke 5 MB)</button>
     </div>
 
     <script>
         const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
         const ws = new WebSocket(protocol + window.location.host + '/ws');
-
-        ws.onopen = function() {
-            console.log("WebSocket Controller Connected");
-        };
 
         function setScreen(name) {
             ws.send(JSON.stringify({ screen: name, action: 'switch_screen' }));
@@ -62,9 +60,13 @@
             ws.send(JSON.stringify({ screen: 'battery', action: 'trigger_ok_battery', battery_target: val }));
         }
 
-        function sendMemory() {
+        function sendMemoryOk() {
             let val = document.getElementById('mem-val').value;
             ws.send(JSON.stringify({ screen: 'memory', action: 'set_memory', memory_target: val }));
+        }
+
+        function sendMemoryProcess() {
+            ws.send(JSON.stringify({ screen: 'memory', action: 'trigger_ok_memory' }));
         }
     </script>
 </body>
