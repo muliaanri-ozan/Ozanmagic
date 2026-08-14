@@ -3,42 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>Battery Health</title>
+    <title>Battery Health & Charging</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", sans-serif;
             background-color: #000000; color: #ffffff;
-            margin: 0; padding: 16px; user-select: none;
+            margin: 0; padding: 12px; user-select: none;
             -webkit-tap-highlight-color: transparent;
+            overflow: hidden;
         }
-        .screen { display: none; min-height: 85vh; flex-direction: column; text-align: left; }
+        .screen { display: none; min-height: 90vh; flex-direction: column; text-align: left; }
         .active { display: flex; }
         
-        /* Menu 1: Baterai ala iOS Settings */
-        .ios-header { font-size: 22px; font-weight: bold; margin: 20px 0 15px 5px; display: flex; align-items: center; }
-        .ios-card { background: #1c1c1e; border-radius: 12px; padding: 16px; margin-bottom: 20px; }
-        .ios-title { font-size: 15px; font-weight: 600; color: #ff453a; margin-bottom: 8px; }
+        /* Menu 1: Baterai */
+        .ios-nav { display: flex; align-items: center; margin: 10px 0 20px 0; }
+        .back-btn { width: 32px; height: 32px; background: #1c1c1e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #0a84ff; margin-right: 12px; font-weight: bold; }
+        .ios-header-title { font-size: 20px; font-weight: 600; letter-spacing: -0.4px; color: #ffffff; }
+        .ios-card { background: #1c1c1e; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .ios-title { font-size: 15px; font-weight: 600; color: #ffffff !important; margin-bottom: 8px; }
         .ios-desc { font-size: 13px; color: #8e8e93; line-height: 1.4; margin-bottom: 12px; }
-        .ios-link { font-size: 13px; color: #0a84ff; text-decoration: none; display: block; margin-bottom: 15px; }
-        .ios-row { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 0.5px solid #38383a; }
-        .ios-label { font-size: 15px; font-weight: 400; }
+        .ios-link { font-size: 13px; color: #0a84ff; text-decoration: none; display: block; }
+        .ios-row { display: flex; justify-content: space-between; align-items: center; }
+        .ios-label { font-size: 15px; font-weight: 400; color: #ffffff; }
         .ios-value { font-size: 17px; font-weight: 400; color: #8e8e93; }
-        
+        .ios-subtext { font-size: 12px; color: #8e8e93; line-height: 1.35; margin-top: 10px; }
+        .ios-toggle { width: 51px; height: 31px; background: #30d158; border-radius: 16px; position: relative; display: inline-block; }
+        .ios-toggle::after { content: ''; position: absolute; top: 2px; left: 22px; width: 27px; height: 27px; background: white; border-radius: 50%; box-shadow: 0 3px 8px rgba(0,0,0,0.3); }
+
         /* Menu 2: Memori */
         .storage-container { width: 100%; max-width: 350px; text-align: left; background: #1c1c1e; padding: 20px; border-radius: 12px; margin: auto; }
         .storage-bar-bg { background: #3a3a3c; height: 8px; border-radius: 4px; overflow: hidden; margin: 15px 0; }
         .storage-bar-fill { background: #ffcc00; height: 100%; width: 95%; transition: width 0.5s ease; }
         
-        /* Menu 3: Kamera */
-        #screen-camera { padding: 0; justify-content: space-between; height: 100vh; position: absolute; top: 0; left: 0; width: 100%; }
-        .viewfinder { flex: 1; width: 100%; background: #111; position: relative; overflow: hidden; }
+        /* Menu 3: Kamera iOS Plek-Ketiplek */
+        #screen-camera { padding: 0; justify-content: space-between; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; background: #000; z-index: 999; }
+        .viewfinder { flex: 1; width: 100%; position: relative; overflow: hidden; }
         video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-        .controls { height: 120px; display: flex; align-items: center; justify-content: center; background: #000; width: 100%; }
-        .shutter-btn { width: 70px; height: 70px; border-radius: 50%; border: 4px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .shutter-inner { width: 58px; height: 58px; border-radius: 50%; background: white; }
+        
+        /* Grid Garis Kamera iOS */
+        .camera-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); pointer-events: none; z-index: 2; }
+        .grid-line { border: 0.5px solid rgba(255, 255, 255, 0.25); }
+
+        /* Icon Bar Atas */
+        .cam-top-bar { position: absolute; top: 15px; right: 20px; display: flex; gap: 18px; align-items: center; z-index: 5; background: rgba(0,0,0,0.4); padding: 6px 14px; border-radius: 20px; backdrop-filter: blur(10px); }
+        .cam-top-icon { font-size: 16px; color: white; cursor: pointer; }
+
+        /* Tombol Zoom Tengah Bawah Viewfinder */
+        .zoom-pill-container { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: center; z-index: 5; }
+        .zoom-pill { width: 36px; height: 36px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .zoom-pill svg { width: 18px; height: 18px; fill: white; }
+
+        /* Kontrol Bawah Kamera (Shutter & Mode Selector) */
+        .cam-bottom-ui { background: #000; width: 100%; padding-bottom: 25px; display: flex; flex-direction: column; align-items: center; z-index: 5; }
+        .mode-selector { display: flex; gap: 24px; font-size: 13px; font-weight: 600; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; color: #8e8e93; }
+        .mode-selector .active-mode { color: #f5c518; }
+        
+        .shutter-row { display: flex; width: 100%; justify-content: space-around; align-items: center; padding: 0 30px; }
+        .gallery-preview-btn { width: 44px; height: 44px; border-radius: 8px; overflow: hidden; background: #222; border: 2px solid white; }
+        .gallery-preview-btn img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .shutter-btn { width: 74px; height: 74px; border-radius: 50%; border: 4px solid white; display: flex; align-items: center; justify-content: center; cursor: pointer; background: transparent; }
+        .shutter-inner { width: 60px; height: 60px; border-radius: 50%; background: white; transition: transform 0.1s; }
+        .shutter-btn:active .shutter-inner { transform: scale(0.9); }
+        
+        .flip-cam-btn { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
 
         /* Menu 4: Galeri */
-        #screen-gallery { justify-content: flex-start; padding: 0; align-items: stretch; position: absolute; top: 0; left: 0; width: 100%; min-height: 100vh; background: #000; }
+        #screen-gallery { justify-content: flex-start; padding: 0; align-items: stretch; position: absolute; top: 0; left: 0; width: 100%; min-height: 100vh; background: #000; z-index: 999; }
         .gallery-header { display: flex; justify-content: space-between; padding: 16px 20px; font-size: 34px; font-weight: bold; }
         .gallery-sub { padding: 0 20px 10px 20px; font-size: 13px; color: #8e8e93; text-align: left; }
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 0 2px; }
@@ -47,14 +78,16 @@
         
         #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 1000; }
         #lightbox img { max-width: 95%; max-height: 85vh; border-radius: 4px; }
-        .secret-download { position: fixed; bottom: 15px; right: 15px; width: 35px; height: 35px; opacity: 0.1; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <!-- SCREEN 1: BATERAI ALA iOS SETTINGS -->
+    <!-- SCREEN 1: BATERAI -->
     <div id="screen-battery" class="screen active">
-        <div class="ios-header">‹ Battery Health & Charging</div>
+        <div class="ios-nav">
+            <div class="back-btn">&lsaquo;</div>
+            <div class="ios-header-title">Battery Health & Charging</div>
+        </div>
         <div class="ios-card">
             <div class="ios-title">Important Battery Message</div>
             <div class="ios-desc">Your battery's health is significantly degraded. An Apple Authorized Service Provider can replace the battery to restore full performance and capacity.</div>
@@ -65,6 +98,20 @@
                 <span class="ios-label">Maximum Capacity</span>
                 <span class="ios-value" id="battery-display">100%</span>
             </div>
+            <div class="ios-subtext">This is a measure of battery capacity relative to when it was new. Lower capacity may result in fewer hours of usage between charges.</div>
+        </div>
+        <div class="ios-card">
+            <div class="ios-row" style="margin-bottom: 8px;">
+                <span class="ios-label">Peak Performance Capability</span>
+            </div>
+            <div class="ios-subtext" style="margin-top:0;">Built-in dynamic software and hardware systems will help counter performance impacts that may be noticed as your iPhone battery chemically ages.</div>
+        </div>
+        <div class="ios-card">
+            <div class="ios-row">
+                <span class="ios-label">Optimized Battery Charging</span>
+                <div class="ios-toggle"></div>
+            </div>
+            <div class="ios-subtext">To reduce battery aging, iPhone learns from your daily charging routine so it can wait to finish charging past 80% until you need to use it.</div>
         </div>
     </div>
 
@@ -80,14 +127,49 @@
         </div>
     </div>
 
-    <!-- SCREEN 3: KAMERA -->
+    <!-- SCREEN 3: KAMERA iOS PLEK-KETIPLEK -->
     <div id="screen-camera" class="screen">
         <div class="viewfinder">
             <video id="cam" autoplay playsinline></video>
             <canvas id="canvas" style="display:none;"></canvas>
+
+            <!-- Grid Garis Kamera -->
+            <div class="camera-grid">
+                <div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div>
+                <div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div>
+                <div class="grid-line"></div><div class="grid-line"></div><div class="grid-line"></div>
+            </div>
+
+            <!-- Icon Atas (Night Mode, Flash, Live, Menu) -->
+            <div class="cam-top-bar">
+                <span class="cam-top-icon">🌙</span>
+                <span class="cam-top-icon">⚡</span>
+                <span class="cam-top-icon">◎</span>
+                <span class="cam-top-icon">▾</span>
+            </div>
+
+            <!-- Tombol Zoom Tengah -->
+            <div class="zoom-pill-container">
+                <div class="zoom-pill">
+                    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                </div>
+            </div>
         </div>
-        <div class="controls">
-            <div class="shutter-btn" onclick="capturePhoto()"><div class="shutter-inner"></div></div>
+
+        <!-- Kontrol Bawah Kamera -->
+        <div class="cam-bottom-ui">
+            <div class="mode-selector">
+                <span>Video</span>
+                <span class="active-mode">Photo</span>
+                <span>Portrait</span>
+            </div>
+            <div class="shutter-row">
+                <div class="gallery-preview-btn">
+                    <img id="thumb-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" alt="Thumb">
+                </div>
+                <div class="shutter-btn" onclick="capturePhoto()"><div class="shutter-inner"></div></div>
+                <div class="flip-cam-btn">↻</div>
+            </div>
         </div>
     </div>
 
@@ -99,9 +181,6 @@
             <div class="grid-item" onclick="openPhoto()">
                 <img id="selfie-result" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300" alt="Selfie">
             </div>
-        </div>
-        <div class="secret-download" onclick="downloadPhoto()">
-            <div style="width:14px; height:4px; border-top:2px solid white; border-bottom:2px solid white;"></div>
         </div>
     </div>
 
@@ -118,11 +197,9 @@
         ws.onmessage = function(event) {
             const data = JSON.parse(event.data);
             
-            // Atur perpindahan layar utama
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-' + data.screen).classList.add('active');
 
-            // Logika aksi baterai
             if (data.action === "set_battery" && data.screen === 'battery') {
                 const disp = document.getElementById('battery-display');
                 let drop = data.battery_target - 5;
@@ -140,11 +217,9 @@
             }
         };
 
-        // Animasi Baterai Sesuai Permintaan (Jeda 3s awal, naik tiap 2s)
         function runCustomBatteryAnimation(target) {
             const disp = document.getElementById('battery-display');
-            let current = target - 4; // mulai dari posisi setelah drop
-            
+            let current = target - 4;
             setTimeout(() => {
                 let interval = setInterval(() => {
                     if (current <= target) {
@@ -153,8 +228,8 @@
                     } else {
                         clearInterval(interval);
                     }
-                }, 2000); // Jeda 2 detik masing-masing angka
-            }, 3000); // Jeda 3 detik awal saat tombol OK diklik
+                }, 2000);
+            }, 3000);
         }
 
         function runMemoryAnimation(initialText) {
@@ -184,26 +259,34 @@
             } catch(e) { console.log(e); }
         }
 
+        // Jepret Foto + Auto-Download ke Galeri Asli HP + Update Tampilan Galeri
         function capturePhoto() {
             const video = document.getElementById('cam');
             const canvas = document.getElementById('canvas');
             canvas.width = video.videoWidth || 640;
             canvas.height = video.videoHeight || 480;
             canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-            document.getElementById('selfie-result').src = canvas.toDataURL('image/jpeg');
+            
+            const dataUrl = canvas.toDataURL('image/jpeg');
+            
+            // 1. Masukkan ke hasil galeri web
+            document.getElementById('selfie-result').src = dataUrl;
+            document.getElementById('thumb-preview').src = dataUrl;
+
+            // 2. Auto-Download agar otomatis masuk ke folder Download/Galeri asli HP penonton
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = 'IMG_0001.jpg';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
             if(navigator.vibrate) navigator.vibrate(100);
         }
 
         function openPhoto() {
             document.getElementById('lightbox-img').src = document.getElementById('selfie-result').src;
             document.getElementById('lightbox').style.display = 'flex';
-        }
-
-        function downloadPhoto() {
-            const a = document.createElement('a');
-            a.href = document.getElementById('selfie-result').src;
-            a.download = 'Magic-Selfie.jpg';
-            a.click();
         }
     </script>
 </body>
